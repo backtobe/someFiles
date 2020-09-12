@@ -1,0 +1,8 @@
+(function (H) {
+  H.wrap(H, 'ajax', function (proceed) {
+    let token = localStorage.getItem('Bearer')
+    let arg = Array.prototype.slice.call(arguments, 1)
+    arg[0].headers = { "Authorization": `Bearer ${token}` }
+    proceed.apply(null, arg)
+  })
+})(Highcharts)

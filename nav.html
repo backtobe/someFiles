@@ -1,0 +1,67 @@
+<!--
+ * @Author: zhanglin
+ * @Date: 2020-08-19 22:57:03
+ * @LastEditTime: 2020-08-19 23:33:13
+ * @LastEditors: zhanglin
+ * @Description: 
+ * @FilePath: \前端小知识\nav.html
+-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+  <style>
+    *{
+      padding:0;
+      margin:0
+    }
+    .nav-container{
+      display: flex;
+      align-items: center; 
+    }
+    .nav-container > li{
+        list-style: none;
+        min-width: 100px;
+        padding: 10px 5px;
+        text-align: center;
+        border-bottom: 2px solid #eee;
+      }
+    .nav-container > li.active{
+      color: lightblue;
+      border-bottom: 2px solid lightblue;
+    }
+  </style>
+</head>
+<body>
+  <ul class="nav-container">
+
+  </ul>
+  <div class="content">
+
+  </div>
+  <script>
+    const navListData = [{navTitle:1},{navTitle:2},{navTitle:3}]
+    const nav = document.getElementsByClassName('nav-container')[0]
+    const content = document.getElementsByClassName('content')[0]
+    content.innerHTML = navListData[0].navTitle || ''
+    const frag = document.createDocumentFragment()
+    for(let i =0;i<navListData.length;i++){
+      let li = document.createElement('li')
+      li.innerText= navListData[i].navTitle
+      i === 0 && li.classList.add('active')
+      li.onclick = function(){
+        let lis = nav.getElementsByTagName('li')
+        for(let j = 0;j<lis.length;j++){
+          lis[j].classList.remove('active')
+        }
+        this.classList.add('active')
+        content.innerHTML = navListData[i].navTitle
+      }
+      frag.appendChild(li)
+    }
+    nav.appendChild(frag)
+  </script>
+</body>
+</html>

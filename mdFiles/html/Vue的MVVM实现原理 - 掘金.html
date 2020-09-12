@@ -1,0 +1,653 @@
+<!DOCTYPE html>
+<!-- saved from url=(0047)https://juejin.im/post/5edefb32518825431373704c -->
+<html lang="zh-Hans"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"><meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no,viewport-fit=cover"><meta name="google-site-verification" content="cCHsgG9ktuCTgWgYfqCJql8AeR4gAne4DTZqztPoirE"><meta name="google-site-verification" content="nPvn9R5NJLsZKTv5VKIbn0OmkRcJ4PC6KdDoTX3n5Mw"><meta name="apple-itunes-app" content="app-id=987739104"><meta name="baidu-site-verification" content="qiK2a1kcFc"><meta name="360-site-verification" content="4c3c7d57d59f0e1a308462fbc7fd7e51"><meta name="sogou_site_verification" content="c49WUDZczQ"><style>body {
+        font-size: 16px;
+        line-height: 2;
+      }
+      a, button, input {
+        margin: 1rem 1.5rem;
+      }
+      img {
+        width: 0;
+        height: 0;
+      }
+      #juejin {
+        overflow-x: hidden;
+      }</style><meta data-vue-meta="true" data-vmid="keywords" name="keywords" content="Vue.js"><meta data-vue-meta="true" data-vmid="description" name="description" content="相信只要你去面试vue，都会被问到vue的双向数据绑定，你要是就说个mvvm就是视图模型模型视图，只要数据改变视图也会同时更新！那你离被pass就不远了！ 视频已录制，地址(www.bilibili.com/video/BV1qJ…) 几种实现双向绑定的做法"><title data-vue-meta="true">Vue的MVVM实现原理 - 掘金</title><link rel="apple-touch-icon" sizes="180x180" href="https://b-gold-cdn.xitu.io/favicons/v2/apple-touch-icon.png"><link rel="icon" type="image/png" sizes="32x32" href="https://b-gold-cdn.xitu.io/favicons/v2/favicon-32x32.png"><link rel="icon" type="image/png" sizes="16x16" href="https://b-gold-cdn.xitu.io/favicons/v2/favicon-16x16.png"><link rel="manifest" href="https://b-gold-cdn.xitu.io/favicons/v2/manifest.json"><link rel="mask-icon" href="https://b-gold-cdn.xitu.io/favicons/v2/safari-pinned-tab.svg" color="#5bbad5"><link rel="shortcut icon" href="https://b-gold-cdn.xitu.io/favicons/v2/favicon.ico"><meta name="msapplication-config" content="https://b-gold-cdn.xitu.io/favicons/v2/browserconfig.xml"><meta name="theme-color" content="#ffffff"><link rel="search" title="掘金" href="https://b-gold-cdn.xitu.io/conf/search.xml" type="application/opensearchdescription+xml"><link rel="stylesheet" href="./Vue的MVVM实现原理 - 掘金_files/ionicons.min.css"><link rel="stylesheet" href="./Vue的MVVM实现原理 - 掘金_files/iconfont.css"><link href="./Vue的MVVM实现原理 - 掘金_files/0.11b43bbc7239c183359c.css" rel="stylesheet"><script async="" src="./Vue的MVVM实现原理 - 掘金_files/hm.js.下载"></script><script async="" src="./Vue的MVVM实现原理 - 掘金_files/analytics.js.下载"></script><script type="text/javascript" async="" src="./Vue的MVVM实现原理 - 掘金_files/vds.js.下载"></script><script type="text/javascript" async="" src="./Vue的MVVM实现原理 - 掘金_files/collect-v.3.2.14.js.下载"></script><script charset="utf-8" src="./Vue的MVVM实现原理 - 掘金_files/3.3442a17d176c67dc72ba.js.下载"></script><script charset="utf-8" src="chrome-extension://jgphnjokjhjlcnnajmfjlacjnjkhleah/js/btype.js"></script><script type="text/javascript" charset="utf-8" src="chrome-extension://jgphnjokjhjlcnnajmfjlacjnjkhleah/js/chrome.js"></script></head><body><div id="juejin" data-v-2285b811=""><div class="global-component-box" data-v-2285b811=""><!----><div data-v-632f99e6="" data-v-2285b811="" class="alert-list alert-list"></div><div data-v-439b64e1="" data-v-2285b811="" class="suspension-panel suspension-panel"><button data-v-439b64e1="" title="回到顶部" class="btn to-top-btn" style="display: none;"><i data-v-439b64e1="" class="ion-android-arrow-dropup"></i></button><button data-v-439b64e1="" title="建议反馈" class="btn meiqia-btn" style=""><i data-v-439b64e1="" class="ion-chatbubble-working"></i></button></div><!----><!----><div class="emoji-barrage" data-v-4e8b2894="" data-v-2285b811=""><!----></div><!----><!----><div class="bind-phone-number-modal-box" data-v-70c421cc="" data-v-2285b811=""><div st:block="bindPhoneNumberModal" class="modal-mask" style="display:none;" data-v-70c421cc=""></div><form class="bind-phone-number-form" style="display:none;" data-v-70c421cc=""><i title="关闭" class="close-btn ion-close-round" data-v-70c421cc=""></i><h1 class="title" data-v-70c421cc="">提示</h1><h2 class="hint" data-v-70c421cc="">根据我国<a href="http://www.cac.gov.cn/2017-08/25/c_1121541842.htm" target="_blank" style="color:#007fff">《互联网跟帖评论服务管理规定》</a>，您需要绑定手机号后才可在掘金社区内发布内容。</h2><div class="input-group" data-v-70c421cc=""><div class="input-box" data-v-70c421cc=""><input maxlength="64" placeholder="请输入要绑定的手机号码" value="" class="input" data-v-70c421cc=""></div><!----><!----></div><button st:name="bindBtn" class="btn" data-v-70c421cc="">绑定手机</button></form></div></div><!----><div data-v-575c8a08="" data-v-0b1a4f9a="" data-v-2285b811="" class="view-container"><div data-v-575c8a08="" class="main-header-box"><header data-v-4c5e2361="" data-v-575c8a08="" class="main-header main-header unauthorized visible"><div data-v-4c5e2361="" class="container"><a data-v-4c5e2361="" href="https://juejin.im/" class="logo"><img data-v-4c5e2361="" src="./Vue的MVVM实现原理 - 掘金_files/logo.a7995ad.svg" alt="掘金" class="logo-img"><img data-v-4c5e2361="" src="./Vue的MVVM实现原理 - 掘金_files/simplify-logo.3e3c253.svg" alt="掘金" class="mobile"></a><nav data-v-4c5e2361="" role="navigation" class="main-nav"><ul data-v-4c5e2361="" class="nav-list"><li data-v-4c5e2361="" class="main-nav-list"><div data-v-4c5e2361="" class="phone-show-menu"><span data-v-4c5e2361="">首页</span><div data-v-4c5e2361="" class="icon ion-arrow-down-b"></div></div><ul data-v-4c5e2361="" class="phone-hide"><li data-v-4c5e2361="" class="nav-item link-item route-active"><a data-v-4c5e2361="" href="https://juejin.im/">首页</a></li><li data-v-4c5e2361="" class="nav-item link-item activities"><a data-v-4c5e2361="" href="https://juejin.im/pins">沸点</a></li><li data-v-4c5e2361="" class="nav-item link-item"><a data-v-4c5e2361="" href="https://juejin.im/topics">话题</a></li><li data-v-4c5e2361="" class="nav-item link-item book"><a data-v-4c5e2361="" href="https://juejin.im/books">小册</a></li><li data-v-4c5e2361="" class="nav-item link-item"><a data-v-4c5e2361="" href="https://juejin.im/events/all">活动</a></li></ul></li><li data-v-4c5e2361="" class="nav-item search"><form data-v-4c5e2361="" role="search" class="search-form"><input data-v-4c5e2361="" type="search" maxlength="32" placeholder="搜索掘金" class="search-input"><img data-v-4c5e2361="" src="./Vue的MVVM实现原理 - 掘金_files/juejin-search-icon.6f8ba1b.svg" alt="搜索" class="search-icon"></form></li><!----><!----><!----><li data-v-4c5e2361="" class="nav-item submit"><img data-v-4c5e2361="" src="./Vue的MVVM实现原理 - 掘金_files/submit-icon.53f4253.svg" class="icon"><span data-v-4c5e2361="">写文章</span><!----></li><li data-v-4c5e2361="" class="nav-item auth"><span data-v-4c5e2361="" class="login">登录</span><span data-v-4c5e2361="" class="register">注册</span></li></ul></nav></div></header></div><main data-v-575c8a08="" class="container main-container"><div data-v-0b1a4f9a="" data-v-575c8a08="" class="view column-view"><div data-v-0b1a4f9a="" data-v-575c8a08="" class="main-area article-area shadow"><article data-v-0b1a4f9a="" itemscope="itemscope" itemtype="http://schema.org/Article" class="article" data-v-575c8a08=""><meta itemprop="url" content="https://juejin.im/post/5edefb32518825431373704c"><meta itemprop="headline" content="Vue的MVVM实现原理"><meta itemprop="keywords" content="Vue.js"><meta itemprop="datePublished" content="2020-06-09T03:04:32.795Z"><meta itemprop="image" content="https://b-gold-cdn.xitu.io/icon/icon-128.png"><div itemprop="author" itemscope="itemscope" itemtype="http://schema.org/Person"><meta itemprop="name" content="笑马哥"><meta itemprop="url" content="https://juejin.im/user/5954c8375188250d9a3eb3bd"></div><div itemprop="publisher" itemscope="itemscope" itemtype="http://schema.org/Organization"><meta itemprop="name" content="掘金"><div itemprop="logo" itemscope="itemscope" itemtype="https://schema.org/ImageObject"><meta itemprop="url" content="https://b-gold-cdn.xitu.io/icon/icon-white-180.png"><meta itemprop="width" content="180"><meta itemprop="height" content="180"></div></div><div data-v-0b1a4f9a="" class="author-info-block"><a data-v-0b1a4f9a="" href="https://juejin.im/user/5954c8375188250d9a3eb3bd" target="_blank" rel="" class="avatar-link"><div data-v-e232e062="" data-v-4bc4293a="" data-v-0b1a4f9a="" data-src="https://user-gold-cdn.xitu.io/2020/4/17/17186a4c9f7ff052?imageView2/1/w/100/h/100/q/85/format/webp/interlace/1" class="lazy avatar avatar" style="background-image: none;"></div></a><div data-v-0b1a4f9a="" class="author-info-box"><a data-v-b8de4708="" data-v-0b1a4f9a="" href="https://juejin.im/user/5954c8375188250d9a3eb3bd" target="_blank" rel="" class="username username ellipsis">笑马哥<a data-v-b9e98e56="" data-v-b8de4708="" href="https://juejin.im/book/5c90640c5188252d7941f5bb/section/5c9065385188252da6320022" target="_blank" rel="" class="rank"><img data-v-b9e98e56="" src="./Vue的MVVM实现原理 - 掘金_files/lv-1.636691c.svg" alt="lv-1"></a></a><div data-v-0b1a4f9a="" class="meta-box"><time data-v-0b1a4f9a="" datetime="2020-06-09T03:04:32.795Z" title="Tue Jun 09 2020 11:04:32 GMT+0800 (中国标准时间)" class="time">2020年06月09日</time><span data-v-0b1a4f9a="" class="views-count">阅读 806</span><!----></div></div><button data-v-1de19339="" data-v-0b1a4f9a="" class="follow-button follow">关注</button></div><!----><h1 data-v-0b1a4f9a="" class="article-title">Vue的MVVM实现原理</h1><div data-v-0b1a4f9a="" data-id="5edefc40f265da76e609ec95" itemprop="articleBody" class="article-content"><blockquote>
+<p>相信只要你去面试vue，都会被问到vue的双向数据绑定，你要是就说个mvvm就是视图模型模型视图，只要数据改变视图也会同时更新！那你离被pass就不远了！</p>
+</blockquote>
+<h3 class="heading" data-id="heading-0">视频已录制，地址(<a target="_blank" href="https://www.bilibili.com/video/BV1qJ411W7YR" rel="nofollow noopener noreferrer">www.bilibili.com/video/BV1qJ…</a>)</h3>
+<h3 class="heading" data-id="heading-1">几种实现双向绑定的做法</h3>
+<p>目前几种主流的mvc(vm)框架都实现了单向数据绑定，而我所理解的双向数据绑定无非就是在单向绑定的基础上给可输入元素（input、textare等）添加了change(input)事件，来动态修改model和 view，并没有多高深。所以无需太过介怀是实现的单向或双向绑定。</p>
+<p>实现数据绑定的做法有大致如下几种：</p>
+<blockquote>
+<p>发布者-订阅者模式（backbone.js）</p>
+<p>脏值检查（angular.js）</p>
+<p>数据劫持（vue.js）</p>
+</blockquote>
+<p><strong>发布者-订阅者模式:</strong> 一般通过sub, pub的方式实现数据和视图的绑定监听，更新数据方式通常做法是 <code>vm.set('property', value)</code>，这里有篇文章讲的比较详细，有兴趣可点<a target="_blank" href="http://www.html-js.com/article/Study-of-twoway-data-binding-JavaScript-talk-about-JavaScript-every-day" rel="nofollow noopener noreferrer">这里</a></p>
+<p>这种方式现在毕竟太low了，我们更希望通过 <code>vm.property = value</code>这种方式更新数据，同时自动更新视图，于是有了下面两种方式</p>
+<p><strong>脏值检查:</strong> angular.js 是通过脏值检测的方式比对数据是否有变更，来决定是否更新视图，最简单的方式就是通过 <code>setInterval()</code> 定时轮询检测数据变动，当然Google不会这么low，angular只有在指定的事件触发时进入脏值检测，大致如下：</p>
+<ul>
+<li>DOM事件，譬如用户输入文本，点击按钮等。( ng-click )</li>
+<li>XHR响应事件 ( $http )</li>
+<li>浏览器Location变更事件 ( $location )</li>
+<li>Timer事件( <img alt="timeout ," class="equation" src="./Vue的MVVM实现原理 - 掘金_files/equation">interval )</li>
+<li>执行 <img alt="digest() 或" class="equation" src="./Vue的MVVM实现原理 - 掘金_files/equation(1)">apply()</li>
+</ul>
+<p><strong>数据劫持:</strong> vue.js 则是采用数据劫持结合发布者-订阅者模式的方式，通过<code>Object.defineProperty()</code>来劫持各个属性的<code>setter</code>，<code>getter</code>，在数据变动时发布消息给订阅者，触发相应的监听回调。</p>
+<h3 class="heading" data-id="heading-2">MVVM原理</h3>
+<p>Vue响应式原理最核心的方法便是通过Object.defineProperty()来实现对属性的劫持，达到监听数据变动的目的，无疑这个方法是本文中最重要、最基础的内容之一</p>
+<p>整理了一下，要实现mvvm的双向绑定，就必须要实现以下几点：</p>
+<ul>
+<li>1、实现一个数据监听器Observer，能够对数据对象的所有属性进行监听，如有变动可拿到最新值并通知订阅者</li>
+<li>2、实现一个指令解析器Compile，对每个元素节点的指令进行扫描和解析，根据指令模板替换数据，以及绑定相应的更新函数</li>
+<li>3、实现一个Watcher，作为连接Observer和Compile的桥梁，能够订阅并收到每个属性变动的通知，执行指令绑定的相应回调函数，从而更新视图</li>
+<li>4、mvvm入口函数，整合以上三者</li>
+</ul>
+<p></p><figure><img class="lazyload inited" data-src="https://user-gold-cdn.xitu.io/2020/6/9/172970655167cff7?imageView2/0/w/1280/h/960/format/webp/ignore-error/1" data-width="1280" data-height="682" src="data:image/svg+xml;utf8,&lt;?xml version=&quot;1.0&quot;?&gt;&lt;svg xmlns=&quot;http://www.w3.org/2000/svg&quot; version=&quot;1.1&quot; width=&quot;1280&quot; height=&quot;682&quot;&gt;&lt;/svg&gt;"><figcaption></figcaption></figure><p></p>
+<p>先看之前vue的功能</p>
+<pre><code class="hljs html copyable" lang="html"><span class="hljs-meta">&lt;!DOCTYPE html&gt;</span>
+<span class="hljs-tag">&lt;<span class="hljs-name">html</span> <span class="hljs-attr">lang</span>=<span class="hljs-string">"en"</span>&gt;</span>
+
+<span class="hljs-tag">&lt;<span class="hljs-name">head</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">meta</span> <span class="hljs-attr">charset</span>=<span class="hljs-string">"UTF-8"</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">meta</span> <span class="hljs-attr">name</span>=<span class="hljs-string">"viewport"</span> <span class="hljs-attr">content</span>=<span class="hljs-string">"width=device-width, initial-scale=1.0"</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">meta</span> <span class="hljs-attr">http-equiv</span>=<span class="hljs-string">"X-UA-Compatible"</span> <span class="hljs-attr">content</span>=<span class="hljs-string">"ie=edge"</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">title</span>&gt;</span>Document<span class="hljs-tag">&lt;/<span class="hljs-name">title</span>&gt;</span>
+<span class="hljs-tag">&lt;/<span class="hljs-name">head</span>&gt;</span>
+
+<span class="hljs-tag">&lt;<span class="hljs-name">body</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">id</span>=<span class="hljs-string">"app"</span>&gt;</span>
+        <span class="hljs-tag">&lt;<span class="hljs-name">h2</span>&gt;</span>{{obj.name}}--{{obj.age}}<span class="hljs-tag">&lt;/<span class="hljs-name">h2</span>&gt;</span>
+        <span class="hljs-tag">&lt;<span class="hljs-name">h2</span>&gt;</span>{{obj.age}}<span class="hljs-tag">&lt;/<span class="hljs-name">h2</span>&gt;</span>
+        <span class="hljs-tag">&lt;<span class="hljs-name">h3</span> <span class="hljs-attr">v-text</span>=<span class="hljs-string">'obj.name'</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">h3</span>&gt;</span>
+        <span class="hljs-tag">&lt;<span class="hljs-name">h4</span> <span class="hljs-attr">v-text</span>=<span class="hljs-string">'msg'</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">h4</span>&gt;</span>
+        <span class="hljs-tag">&lt;<span class="hljs-name">ul</span>&gt;</span>
+            <span class="hljs-tag">&lt;<span class="hljs-name">li</span>&gt;</span>1<span class="hljs-tag">&lt;/<span class="hljs-name">li</span>&gt;</span>
+            <span class="hljs-tag">&lt;<span class="hljs-name">li</span>&gt;</span>2<span class="hljs-tag">&lt;/<span class="hljs-name">li</span>&gt;</span>
+            <span class="hljs-tag">&lt;<span class="hljs-name">li</span>&gt;</span>3<span class="hljs-tag">&lt;/<span class="hljs-name">li</span>&gt;</span>
+        <span class="hljs-tag">&lt;/<span class="hljs-name">ul</span>&gt;</span>
+        <span class="hljs-tag">&lt;<span class="hljs-name">h3</span>&gt;</span>{{msg}}<span class="hljs-tag">&lt;/<span class="hljs-name">h3</span>&gt;</span>
+        <span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">v-html</span>=<span class="hljs-string">'htmlStr'</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span>
+        <span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">v-html</span>=<span class="hljs-string">'obj.fav'</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span>
+        <span class="hljs-tag">&lt;<span class="hljs-name">input</span> <span class="hljs-attr">type</span>=<span class="hljs-string">"text"</span> <span class="hljs-attr">v-model</span>=<span class="hljs-string">'msg'</span>&gt;</span>
+        <span class="hljs-tag">&lt;<span class="hljs-name">img</span> <span class="hljs-attr">v-bind:src</span>=<span class="hljs-string">"imgSrc"</span> <span class="hljs-attr">v-bind:alt</span>=<span class="hljs-string">"altTitle"</span>&gt;</span>
+        <span class="hljs-tag">&lt;<span class="hljs-name">button</span> <span class="hljs-attr">v-on:click</span>=<span class="hljs-string">'handlerClick'</span>&gt;</span>按钮1<span class="hljs-tag">&lt;/<span class="hljs-name">button</span>&gt;</span>
+        <span class="hljs-tag">&lt;<span class="hljs-name">button</span> <span class="hljs-attr">v-on:click</span>=<span class="hljs-string">'handlerClick2'</span>&gt;</span>按钮2<span class="hljs-tag">&lt;/<span class="hljs-name">button</span>&gt;</span>
+        <span class="hljs-tag">&lt;<span class="hljs-name">button</span> @<span class="hljs-attr">click</span>=<span class="hljs-string">'handlerClick2'</span>&gt;</span>按钮3<span class="hljs-tag">&lt;/<span class="hljs-name">button</span>&gt;</span>
+    <span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">script</span> <span class="hljs-attr">src</span>=<span class="hljs-string">"./vue.js"</span>&gt;</span><span class="undefined"></span><span class="hljs-tag">&lt;/<span class="hljs-name">script</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">script</span>&gt;</span><span class="javascript">
+        <span class="hljs-keyword">let</span> vm = <span class="hljs-keyword">new</span> MVue({
+            <span class="hljs-attr">el</span>: <span class="hljs-string">'#app'</span>,
+            <span class="hljs-attr">data</span>: {
+                <span class="hljs-attr">obj</span>: {
+                    <span class="hljs-attr">name</span>: <span class="hljs-string">'小马哥'</span>,
+                    <span class="hljs-attr">age</span>: <span class="hljs-number">19</span>,
+                    <span class="hljs-attr">fav</span>:<span class="hljs-string">'&lt;h4&gt;前端Vue&lt;/h4&gt;'</span>
+                },
+                <span class="hljs-attr">msg</span>: <span class="hljs-string">'MVVM实现原理'</span>,
+                <span class="hljs-attr">htmlStr</span>:<span class="hljs-string">"&lt;h3&gt;hello MVVM&lt;/h3&gt;"</span>,
+                <span class="hljs-attr">imgSrc</span>:<span class="hljs-string">'https://timgsa.baidu.com/timg?image&amp;quality=80&amp;size=b9999_10000&amp;sec=1568782284688&amp;di=8635d17d550631caabfeb4306b5d76fa&amp;imgtype=0&amp;src=http%3A%2F%2Fh.hiphotos.baidu.com%2Fimage%2Fpic%2Fitem%2Fb3b7d0a20cf431ad7427dfad4136acaf2fdd98a9.jpg'</span>,
+                <span class="hljs-attr">altTitle</span>:<span class="hljs-string">'眼睛'</span>,
+                <span class="hljs-attr">isActive</span>:<span class="hljs-string">'true'</span>
+
+            },
+            <span class="hljs-attr">methods</span>: {
+                handlerClick() {
+                    alert(<span class="hljs-number">1</span>);
+                    <span class="hljs-built_in">console</span>.log(<span class="hljs-keyword">this</span>);
+                    
+                },
+                handlerClick2(){
+                    <span class="hljs-built_in">console</span>.log(<span class="hljs-keyword">this</span>);
+                    alert(<span class="hljs-number">2</span>)
+                }
+            }
+
+        })
+    </span><span class="hljs-tag">&lt;/<span class="hljs-name">script</span>&gt;</span>
+<span class="hljs-tag">&lt;/<span class="hljs-name">body</span>&gt;</span>
+
+<span class="hljs-tag">&lt;/<span class="hljs-name">html</span>&gt;</span>
+<span class="copy-code-btn">复制代码</span></code></pre><h3 class="heading" data-id="heading-3">实现指令解析器Compile</h3>
+<p>实现一个指令解析器Compile，对每个元素节点的指令进行扫描和解析，根据指令模板替换数据，以及绑定相应的更新函数,添加监听数据的订阅者，一旦数据有变动，收到通知，更新视图，如图所示：</p>
+<h4 class="heading" data-id="heading-4">初始化</h4>
+<p>新建MVue.js</p>
+<pre><code class="hljs js copyable" lang="js"><span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">MVue</span> </span>{
+    <span class="hljs-keyword">constructor</span>(options) {
+        <span class="hljs-keyword">this</span>.$el = options.el;
+        <span class="hljs-keyword">this</span>.$data = options.data;
+        <span class="hljs-comment">//保存 options参数,后面处理数据要用到</span>
+        <span class="hljs-keyword">this</span>.$options = options;
+        <span class="hljs-comment">// 如果这个根元素存在则开始编译模板</span>
+        <span class="hljs-keyword">if</span> (<span class="hljs-keyword">this</span>.$el) {
+            <span class="hljs-comment">// 1.实现一个指令解析器compile</span>
+            <span class="hljs-keyword">new</span> Compile(<span class="hljs-keyword">this</span>.$el, <span class="hljs-keyword">this</span>)
+        }
+    }
+}
+<span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Compile</span></span>{
+    <span class="hljs-keyword">constructor</span>(el,vm) {
+        <span class="hljs-comment">// 判断el参数是否是一个元素节点,如果是直接赋值,如果不是 则获取赋值</span>
+        <span class="hljs-keyword">this</span>.el = <span class="hljs-keyword">this</span>.isElementNode(el) ? el : <span class="hljs-built_in">document</span>.querySelector(el);
+        <span class="hljs-keyword">this</span>.vm = vm;
+    }
+    isElementNode(node){
+        <span class="hljs-comment">// 判断是否是元素节点</span>
+        <span class="hljs-keyword">return</span> node.nodeType === <span class="hljs-number">1</span>
+    }
+}
+<span class="copy-code-btn">复制代码</span></code></pre><p>这样外界可以这样操作</p>
+<pre><code class="hljs js copyable" lang="js"><span class="hljs-keyword">let</span> vm = <span class="hljs-keyword">new</span> Vue({
+    <span class="hljs-attr">el</span>:<span class="hljs-string">'#app'</span>
+})
+<span class="hljs-comment">//or</span>
+<span class="hljs-keyword">let</span> vm = <span class="hljs-keyword">new</span> Vue({
+    <span class="hljs-attr">el</span>:<span class="hljs-built_in">document</span>.getElementById(<span class="hljs-string">'app'</span>)
+})
+<span class="copy-code-btn">复制代码</span></code></pre><h4 class="heading" data-id="heading-5"><strong>优化编译使用文档碎片</strong></h4>
+<pre><code class="hljs html copyable" lang="html"><span class="hljs-tag">&lt;<span class="hljs-name">h2</span>&gt;</span>{{obj.name}}--{{obj.age}}<span class="hljs-tag">&lt;/<span class="hljs-name">h2</span>&gt;</span>
+<span class="hljs-tag">&lt;<span class="hljs-name">h2</span>&gt;</span>{{obj.age}}<span class="hljs-tag">&lt;/<span class="hljs-name">h2</span>&gt;</span>
+<span class="hljs-tag">&lt;<span class="hljs-name">h3</span> <span class="hljs-attr">v-text</span>=<span class="hljs-string">'obj.name'</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">h3</span>&gt;</span>
+<span class="hljs-tag">&lt;<span class="hljs-name">h4</span> <span class="hljs-attr">v-text</span>=<span class="hljs-string">'msg'</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">h4</span>&gt;</span>
+<span class="hljs-tag">&lt;<span class="hljs-name">ul</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">li</span>&gt;</span>1<span class="hljs-tag">&lt;/<span class="hljs-name">li</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">li</span>&gt;</span>2<span class="hljs-tag">&lt;/<span class="hljs-name">li</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">li</span>&gt;</span>3<span class="hljs-tag">&lt;/<span class="hljs-name">li</span>&gt;</span>
+<span class="hljs-tag">&lt;/<span class="hljs-name">ul</span>&gt;</span>
+<span class="hljs-tag">&lt;<span class="hljs-name">h3</span>&gt;</span>{{msg}}<span class="hljs-tag">&lt;/<span class="hljs-name">h3</span>&gt;</span>
+<span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">v-html</span>=<span class="hljs-string">'htmlStr'</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span>
+<span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">v-html</span>=<span class="hljs-string">'obj.fav'</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span>
+<span class="hljs-tag">&lt;<span class="hljs-name">input</span> <span class="hljs-attr">type</span>=<span class="hljs-string">"text"</span> <span class="hljs-attr">v-model</span>=<span class="hljs-string">'msg'</span>&gt;</span>
+<span class="hljs-tag">&lt;<span class="hljs-name">img</span> <span class="hljs-attr">v-bind:src</span>=<span class="hljs-string">"imgSrc"</span> <span class="hljs-attr">v-bind:alt</span>=<span class="hljs-string">"altTitle"</span>&gt;</span>
+<span class="hljs-tag">&lt;<span class="hljs-name">button</span> <span class="hljs-attr">v-on:click</span>=<span class="hljs-string">'handlerClick'</span>&gt;</span>按钮1<span class="hljs-tag">&lt;/<span class="hljs-name">button</span>&gt;</span>
+<span class="hljs-tag">&lt;<span class="hljs-name">button</span> <span class="hljs-attr">v-on:click</span>=<span class="hljs-string">'handlerClick2'</span>&gt;</span>按钮2<span class="hljs-tag">&lt;/<span class="hljs-name">button</span>&gt;</span>
+<span class="hljs-tag">&lt;<span class="hljs-name">button</span> @<span class="hljs-attr">click</span>=<span class="hljs-string">'handlerClick2'</span>&gt;</span>按钮3<span class="hljs-tag">&lt;/<span class="hljs-name">button</span>&gt;</span>
+<span class="copy-code-btn">复制代码</span></code></pre><blockquote>
+<p>接下来,找到子元素的值,比如obj.name,obj.age,obj.fav 找到obj 再找到fav,获取数据中的值替换掉</p>
+<p>但是在这里我们不得不想到一个问题,每次找到一个数据替换,都要重新渲染一遍,可能会造成页面的回流和重绘,那么我们最好的办法就是把以上的元素放在内存中,在内存中操作完成之后,再替换掉.</p>
+</blockquote>
+<pre><code class="hljs js copyable" lang="js"><span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Compile</span> </span>{
+    <span class="hljs-keyword">constructor</span>(el, vm) {
+        <span class="hljs-comment">// 判断el参数是否是一个元素节点,如果是直接赋值,如果不是 则获取赋值</span>
+        <span class="hljs-keyword">this</span>.el = <span class="hljs-keyword">this</span>.isElementNode(el) ? el : <span class="hljs-built_in">document</span>.querySelector(el);
+        <span class="hljs-keyword">this</span>.vm = vm;
+        <span class="hljs-comment">// 因为每次匹配到进行替换时,会导致页面的回流和重绘,影响页面的性能</span>
+        <span class="hljs-comment">// 所以需要创建文档碎片来进行缓存,减少页面的回流和重绘</span>
+        <span class="hljs-comment">// 1.获取文档碎片对象</span>
+        <span class="hljs-keyword">const</span> fragment = <span class="hljs-keyword">this</span>.node2Fragment(<span class="hljs-keyword">this</span>.el);
+        <span class="hljs-comment">// console.log(fragment);</span>
+        <span class="hljs-comment">// 2.编译模板</span>
+        <span class="hljs-comment">// 3.把子元素的所有内容添加到根元素中</span>
+        <span class="hljs-keyword">this</span>.el.appendChild(fragment);
+
+    }
+    node2Fragment(el) {
+        <span class="hljs-keyword">const</span> fragment = <span class="hljs-built_in">document</span>.createDocumentFragment();
+        <span class="hljs-keyword">let</span> firstChild;
+        <span class="hljs-keyword">while</span> (firstChild = el.firstChild) {
+            fragment.appendChild(firstChild);
+        }
+        <span class="hljs-keyword">return</span> fragment
+    }
+    isElementNode(el) {
+        <span class="hljs-keyword">return</span> el.nodeType === <span class="hljs-number">1</span>;
+    }
+}
+<span class="copy-code-btn">复制代码</span></code></pre><p>这时候会发现页面跟之前没有任何变化,但是经过Fragment的处理,优化页面渲染性能</p>
+<h4 class="heading" data-id="heading-6"><strong>编译模板</strong></h4>
+<pre><code class="hljs js copyable" lang="js"><span class="hljs-comment">// 编译数据的类</span>
+<span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Compile</span> </span>{
+    <span class="hljs-keyword">constructor</span>(el, vm) {
+        <span class="hljs-comment">// 判断el参数是否是一个元素节点,如果是直接赋值,如果不是 则获取赋值</span>
+        <span class="hljs-keyword">this</span>.el = <span class="hljs-keyword">this</span>.isElementNode(el) ? el : <span class="hljs-built_in">document</span>.querySelector(el);
+        <span class="hljs-keyword">this</span>.vm = vm;
+        <span class="hljs-comment">// 因为每次匹配到进行替换时,会导致页面的回流和重绘,影响页面的性能</span>
+        <span class="hljs-comment">// 所以需要创建文档碎片来进行缓存,减少页面的回流和重绘</span>
+        <span class="hljs-comment">// 1.获取文档碎片对象</span>
+        <span class="hljs-keyword">const</span> fragment = <span class="hljs-keyword">this</span>.node2Fragment(<span class="hljs-keyword">this</span>.el);
+        <span class="hljs-comment">// console.log(fragment);</span>
+        <span class="hljs-comment">// 2.编译模板</span>
+        <span class="hljs-keyword">this</span>.compile(fragment)
+
+        <span class="hljs-comment">// 3.把子元素的所有内容添加到根元素中</span>
+        <span class="hljs-keyword">this</span>.el.appendChild(fragment);
+
+    }
+    compile(fragment) {
+        <span class="hljs-comment">// 1.获取子节点</span>
+        <span class="hljs-keyword">const</span> childNodes = fragment.childNodes;
+        <span class="hljs-comment">// 2.遍历子节点</span>
+        [...childNodes].forEach(<span class="hljs-function"><span class="hljs-params">child</span> =&gt;</span> {
+
+            <span class="hljs-comment">// 3.对子节点的类型进行不同的处理</span>
+            <span class="hljs-keyword">if</span> (<span class="hljs-keyword">this</span>.isElementNode(child)) {
+                <span class="hljs-comment">// 是元素节点</span>
+                <span class="hljs-comment">// 编译元素节点</span>
+                <span class="hljs-comment">// console.log('我是元素节点',child);</span>
+                <span class="hljs-keyword">this</span>.compileElement(child);
+            } <span class="hljs-keyword">else</span> {
+                <span class="hljs-comment">// console.log('我是文本节点',child);</span>
+                <span class="hljs-keyword">this</span>.compileText(child);
+                <span class="hljs-comment">// 剩下的就是文本节点</span>
+                <span class="hljs-comment">// 编译文本节点</span>
+            }
+            <span class="hljs-comment">// 4.一定要记得,递归遍历子元素</span>
+            <span class="hljs-keyword">if</span> (child.childNodes &amp;&amp; child.childNodes.length) {
+                <span class="hljs-keyword">this</span>.compile(child);
+            }
+        })
+    }
+    <span class="hljs-comment">// 编译文本的方法</span>
+    compileText(node) {
+        <span class="hljs-built_in">console</span>.log(<span class="hljs-string">'编译文本'</span>)
+
+    }
+    node2Fragment(el) {
+        <span class="hljs-keyword">const</span> fragment = <span class="hljs-built_in">document</span>.createDocumentFragment();
+        <span class="hljs-comment">// console.log(el.firstChild);</span>
+        <span class="hljs-keyword">let</span> firstChild;
+        <span class="hljs-keyword">while</span> (firstChild = el.firstChild) {
+            fragment.appendChild(firstChild);
+        }
+        <span class="hljs-keyword">return</span> fragment
+    }
+    isElementNode(el) {
+        <span class="hljs-keyword">return</span> el.nodeType === <span class="hljs-number">1</span>;
+    }
+}
+<span class="copy-code-btn">复制代码</span></code></pre><p>接下来根据不同子元素的类型进行渲染</p>
+<h4 class="heading" data-id="heading-7">编译元素</h4>
+<pre><code class="hljs js copyable" lang="js">compileElement(node) {
+    <span class="hljs-comment">// 获取该节点的所有属性</span>
+    <span class="hljs-keyword">const</span> attributes = node.attributes;
+    <span class="hljs-comment">// 对属性进行遍历</span>
+    [...attributes].forEach(<span class="hljs-function"><span class="hljs-params">attr</span> =&gt;</span> {
+        <span class="hljs-keyword">const</span> { name, value } = attr; <span class="hljs-comment">//v-text v-model   v-on:click  @click </span>
+        <span class="hljs-comment">// 看当前name是否是一个指令</span>
+        <span class="hljs-keyword">if</span> (<span class="hljs-keyword">this</span>.isDirective(name)) {
+            <span class="hljs-comment">//对v-text进行操作</span>
+            <span class="hljs-keyword">const</span> [, directive] = name.split(<span class="hljs-string">'-'</span>); <span class="hljs-comment">//text model html</span>
+            <span class="hljs-comment">// v-bind:src</span>
+            <span class="hljs-keyword">const</span> [dirName, eventName] = directive.split(<span class="hljs-string">':'</span>); <span class="hljs-comment">//对v-on:click 进行处理</span>
+            <span class="hljs-comment">// 更新数据</span>
+            compileUtil[dirName] &amp;&amp; compileUtil[dirName](node, value, <span class="hljs-keyword">this</span>.vm, eventName);
+            <span class="hljs-comment">// 移除当前元素中的属性</span>
+            node.removeAttribute(<span class="hljs-string">'v-'</span> + directive);
+
+        }<span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span>(<span class="hljs-keyword">this</span>.isEventName(name)){
+            <span class="hljs-comment">// 对事件进行处理 在这里处理的是@click</span>
+            <span class="hljs-keyword">let</span> [,eventName] =  name.split(<span class="hljs-string">'@'</span>);
+            compileUtil[<span class="hljs-string">'on'</span>](node, value, <span class="hljs-keyword">this</span>.vm, eventName)
+        }
+
+    })
+
+}
+<span class="hljs-comment">// 是否是@click这样事件名字</span>
+isEventName(attrName){
+    <span class="hljs-keyword">return</span> attrName.startsWith(<span class="hljs-string">'@'</span>)
+}
+<span class="hljs-comment">//判断是否是一个指令</span>
+isDirective(attrName) {
+    <span class="hljs-keyword">return</span> attrName.startsWith(<span class="hljs-string">'v-'</span>)
+}
+<span class="copy-code-btn">复制代码</span></code></pre><h4 class="heading" data-id="heading-8">编译文本</h4>
+<pre><code class="hljs js copyable" lang="js"><span class="hljs-comment">// 编译文本的方法</span>
+compileText(node) {
+    <span class="hljs-keyword">const</span> content = node.textContent;
+    <span class="hljs-comment">// 匹配{{xxx}}的内容</span>
+    <span class="hljs-keyword">if</span> (<span class="hljs-regexp">/\{\{(.+?)\}\}/</span>.test(content)) {
+        <span class="hljs-comment">// 处理文本节点</span>
+        compileUtil[<span class="hljs-string">'text'</span>](node, content, <span class="hljs-keyword">this</span>.vm)
+    }
+
+}
+<span class="copy-code-btn">复制代码</span></code></pre><p>大家也会发现,<code>compileUtil</code>这个对象它是什么鬼?真正的编译操作我将它放入到这个对象中,根据不同的指令来做不同的处理.比如v-text是处理文本的 v-html是处理html元素 v-model是处理表单数据的.....</p>
+<p>这样我们在当前对象<code>compileUtil</code>中通过updater函数来初始化视图</p>
+<h4 class="heading" data-id="heading-9"><strong>处理元素/处理文本/处理事件....</strong></h4>
+<pre><code class="hljs js copyable" lang="js"><span class="hljs-keyword">const</span> compileUtil = {
+    <span class="hljs-comment">// 获取值的方法</span>
+    getVal(expr, vm) {
+        <span class="hljs-keyword">return</span> expr.split(<span class="hljs-string">'.'</span>).reduce(<span class="hljs-function">(<span class="hljs-params">data, currentVal</span>) =&gt;</span> {
+            <span class="hljs-keyword">return</span> data[currentVal]
+        }, vm.$data)
+    },
+    getAttrs(expr,vm){
+
+    },
+    text(node, expr, vm) { <span class="hljs-comment">//expr 可能是 {{obj.name}}--{{obj.age}} </span>
+        <span class="hljs-keyword">let</span> val;
+        <span class="hljs-keyword">if</span> (expr.indexOf(<span class="hljs-string">'{{'</span>) !== <span class="hljs-number">-1</span>) {
+            <span class="hljs-comment">// </span>
+            val = expr.replace(<span class="hljs-regexp">/\{\{(.+?)\}\}/g</span>, (...args) =&gt; {
+                <span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>.getVal(args[<span class="hljs-number">1</span>], vm);
+            })
+        }<span class="hljs-keyword">else</span>{ <span class="hljs-comment">//也可能是v-text='obj.name' v-text='msg'</span>
+            val = <span class="hljs-keyword">this</span>.getVal(expr,vm);
+        }
+        <span class="hljs-keyword">this</span>.updater.textUpdater(node, val);
+    },
+    html(node, expr, vm) {
+        <span class="hljs-comment">// html处理 非常简单 直接取值 然后调用更新函数即可</span>
+        <span class="hljs-keyword">let</span> val = <span class="hljs-keyword">this</span>.getVal(expr,vm);
+        <span class="hljs-keyword">this</span>.updater.htmlUpdater(node,val);
+    },
+    model(node, expr, vm) {
+        <span class="hljs-keyword">const</span> val = <span class="hljs-keyword">this</span>.getVal(expr,vm);
+        <span class="hljs-keyword">this</span>.updater.modelUpdater(node,val);
+    },
+    <span class="hljs-comment">// 对事件进行处理</span>
+    on(node, expr, vm, eventName) {
+        <span class="hljs-comment">// 获取事件函数</span>
+        <span class="hljs-keyword">let</span> fn = vm.$options.methods &amp;&amp; vm.$options.methods[expr];
+        <span class="hljs-comment">// 添加事件 因为我们使用vue时 都不需要关心this的指向问题,这是因为源码的内部帮咱们处理了this的指向</span>
+        node.addEventListener(eventName,fn.bind(vm),<span class="hljs-literal">false</span>);
+    },
+    <span class="hljs-comment">// 绑定属性 简单的属性 已经处理 类名样式的绑定有点复杂 因为对应的值可能是对象 也可能是数组 大家根据个人能力尝试写一下</span>
+    bind(node,expr,vm,attrName){
+        <span class="hljs-keyword">let</span> attrVal = <span class="hljs-keyword">this</span>.getVal(expr,vm);
+        <span class="hljs-keyword">this</span>.updater.attrUpdater(node,attrName,attrVal);
+    },
+    <span class="hljs-attr">updater</span>: {
+        attrUpdater(node, attrName, attrVal){
+            node.setAttribute(attrName,attrVal);
+        },
+        modelUpdater(node,value){
+            node.value = value;
+        },
+        textUpdater(node, value) {
+
+            node.textContent = value;
+
+        },
+        htmlUpdater(node,value){
+            node.innerHTML = value;
+        }
+    }
+
+}
+<span class="copy-code-btn">复制代码</span></code></pre><blockquote>
+<p>通过以上操作:我们实现了一个编译器compile,用它来解析指令,通过updater初始化视图</p>
+</blockquote>
+<h3 class="heading" data-id="heading-10">实现一个数据监听器Observer</h3>
+<p>ok, 思路已经整理完毕，也已经比较明确相关逻辑和模块功能了，let's do it 我们知道可以利用<code>Obeject.defineProperty()</code>来监听属性变动 那么将需要observe的数据对象进行递归遍历，包括子属性对象的属性，都加上&nbsp;<code>setter</code>和<code>getter</code> 这样的话，给这个对象的某个值赋值，就会触发<code>setter</code>，那么就能监听到了数据变化。。相关代码可以是这样：</p>
+<pre><code class="hljs js copyable" lang="js"><span class="hljs-comment">//test.js</span>
+<span class="hljs-keyword">let</span> data = {<span class="hljs-attr">name</span>: <span class="hljs-string">'kindeng'</span>};
+observe(data);
+data.name = <span class="hljs-string">'dmq'</span>; <span class="hljs-comment">// 哈哈哈，监听到值变化了 kindeng --&gt; dmq</span>
+
+<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">observe</span>(<span class="hljs-params">data</span>) </span>{
+    <span class="hljs-keyword">if</span> (!data || <span class="hljs-keyword">typeof</span> data !== <span class="hljs-string">'object'</span>) {
+        <span class="hljs-keyword">return</span>;
+    }
+    <span class="hljs-comment">// 取出所有属性遍历</span>
+    <span class="hljs-built_in">Object</span>.keys(data).forEach(<span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">key</span>) </span>{
+        defineReactive(data, key, data[key]);
+    });
+};
+
+<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">defineReactive</span>(<span class="hljs-params">data, key, val</span>) </span>{
+    observe(val); <span class="hljs-comment">// 监听子属性</span>
+    <span class="hljs-built_in">Object</span>.defineProperty(data, key, {
+        <span class="hljs-attr">enumerable</span>: <span class="hljs-literal">true</span>, <span class="hljs-comment">// 可枚举</span>
+        configurable: <span class="hljs-literal">false</span>, <span class="hljs-comment">// 不能再define</span>
+        get: <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{
+            <span class="hljs-keyword">return</span> val;
+        },
+        <span class="hljs-attr">set</span>: <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">newVal</span>) </span>{
+            <span class="hljs-built_in">console</span>.log(<span class="hljs-string">'哈哈哈，监听到值变化了 '</span>, val, <span class="hljs-string">' --&gt; '</span>, newVal);
+            val = newVal;
+        }
+    });
+}
+<span class="copy-code-btn">复制代码</span></code></pre><p></p><figure><img class="lazyload inited" data-src="https://user-gold-cdn.xitu.io/2020/6/9/1729707844e00322?imageView2/0/w/1280/h/960/format/webp/ignore-error/1" data-width="1280" data-height="682" src="data:image/svg+xml;utf8,&lt;?xml version=&quot;1.0&quot;?&gt;&lt;svg xmlns=&quot;http://www.w3.org/2000/svg&quot; version=&quot;1.1&quot; width=&quot;1280&quot; height=&quot;682&quot;&gt;&lt;/svg&gt;"><figcaption></figcaption></figure><p></p>
+<p>再看这张图,我们接下来实现的是一个数据监听器Observer,能够对数据对象的所有属性进行监听，如有变动可拿到最新值通知依赖收集对象(Dep)并通知订阅者(Watcher)来更新视图</p>
+<pre><code class="hljs js copyable" lang="js"><span class="hljs-comment">// 创建一个数据监听者  劫持并监听所有数据的变化</span>
+<span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Observer</span></span>{
+    <span class="hljs-keyword">constructor</span>(data) {
+        <span class="hljs-keyword">this</span>.observe(data);
+    }
+    observe(data){
+        <span class="hljs-comment">// 如果当前data是一个对象才劫持并监听</span>
+        <span class="hljs-keyword">if</span>(data &amp;&amp; <span class="hljs-keyword">typeof</span> data === <span class="hljs-string">'object'</span>){
+            <span class="hljs-comment">// 遍历对象的属性做监听</span>
+            <span class="hljs-built_in">Object</span>.keys(data).forEach(<span class="hljs-function"><span class="hljs-params">key</span>=&gt;</span>{
+                <span class="hljs-keyword">this</span>.defineReactive(data,key,data[key]);
+            })
+            
+        }
+    }
+    defineReactive(obj,key,value){
+        <span class="hljs-comment">// 循环递归 对所有层的数据进行观察</span>
+        <span class="hljs-keyword">this</span>.observe(value);<span class="hljs-comment">//这样obj也能被观察了</span>
+        <span class="hljs-built_in">Object</span>.defineProperty(obj,key,{
+            get(){
+                <span class="hljs-keyword">return</span> value;
+            },
+            <span class="hljs-attr">set</span>:<span class="hljs-function">(<span class="hljs-params">newVal</span>)=&gt;</span>{
+                <span class="hljs-keyword">if</span> (newVal !== value){
+                    <span class="hljs-comment">// 如果外界直接修改对象 则对新修改的值重新观察</span>
+                    <span class="hljs-keyword">this</span>.observe(newVal);
+                    value = newVal;
+                    <span class="hljs-comment">// 通知变化</span>
+                    dep.notify();
+                }
+            }
+        })
+    }
+}
+<span class="copy-code-btn">复制代码</span></code></pre><p>这样我们已经可以监听每个数据的变化了，那么监听到变化之后就是怎么通知订阅者了，所以接下来我们需要实现一个消息订阅器，很简单，维护一个数组，用来收集订阅者，数据变动触发notify，再调用订阅者的update方法，代码改善之后是这样：</p>
+<p><strong>创建Dep</strong></p>
+<ul>
+<li>添加订阅者</li>
+<li>定义通知的方法</li>
+</ul>
+<pre><code class="hljs js copyable" lang="js"><span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Dep</span></span>{
+    <span class="hljs-keyword">constructor</span>() {
+        <span class="hljs-keyword">this</span>.subs = []
+    }
+    <span class="hljs-comment">// 添加订阅者</span>
+    addSub(watcher){
+        <span class="hljs-keyword">this</span>.subs.push(watcher);
+ 
+    }
+    <span class="hljs-comment">// 通知变化</span>
+    notify(){
+        <span class="hljs-comment">// 观察者中有个update方法 来更新视图</span>
+        <span class="hljs-keyword">this</span>.subs.forEach(<span class="hljs-function"><span class="hljs-params">w</span>=&gt;</span>w.update());
+    }
+}
+<span class="copy-code-btn">复制代码</span></code></pre><p>虽然我们已经创建了Observer,Dep(订阅器),那么问题来了，谁是订阅者？怎么往订阅器添加订阅者？</p>
+<p>没错，上面的思路整理中我们已经明确订阅者应该是Watcher, 而且<code>const dep = new Dep();</code>是在&nbsp;<code>defineReactive</code>方法内部定义的，所以想通过<code>dep</code>添加订阅者，就必须要在闭包内操作，所以我们可以在&nbsp;<code>getOldVal</code>里面动手脚：</p>
+<h3 class="heading" data-id="heading-11">实现一个Watcher</h3>
+<p>它作为连接Observer和Compile的桥梁，能够订阅并收到每个属性变动的通知，执行指令绑定的相应回调函数，从而更新视图</p>
+<p>只要所做事情:</p>
+<p>1、在自身实例化时往属性订阅器(dep)里面添加自己</p>
+<p>2、自身必须有一个update()方法</p>
+<p>3、待属性变动dep.notify()通知时，能调用自身的update()方法，并触发Compile中绑定的回调，则功成身退。</p>
+<pre><code class="hljs js copyable" lang="js"><span class="hljs-comment">//Watcher.js</span>
+<span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Watcher</span></span>{
+    <span class="hljs-keyword">constructor</span>(vm,expr,cb) {
+        <span class="hljs-comment">// 观察新值和旧值的变化,如果有变化 更新视图</span>
+        <span class="hljs-keyword">this</span>.vm = vm;
+        <span class="hljs-keyword">this</span>.expr = expr;
+        <span class="hljs-keyword">this</span>.cb = cb;
+        <span class="hljs-comment">// 先把旧值存起来  </span>
+        <span class="hljs-keyword">this</span>.oldVal = <span class="hljs-keyword">this</span>.getOldVal();
+    }
+    getOldVal(){
+        Dep.target = <span class="hljs-keyword">this</span>;
+        <span class="hljs-keyword">let</span> oldVal = compileUtil.getVal(<span class="hljs-keyword">this</span>.expr,<span class="hljs-keyword">this</span>.vm);
+        Dep.target = <span class="hljs-literal">null</span>;
+        <span class="hljs-keyword">return</span> oldVal;
+    }
+    update(){
+        <span class="hljs-comment">// 更新操作 数据变化后 Dep会发生通知 告诉观察者更新视图</span>
+        <span class="hljs-keyword">let</span> newVal = compileUtil.getVal(<span class="hljs-keyword">this</span>.expr, <span class="hljs-keyword">this</span>.vm);
+        <span class="hljs-keyword">if</span>(newVal !== <span class="hljs-keyword">this</span>.oldVal){
+            <span class="hljs-keyword">this</span>.cb(newVal);
+        }
+    }
+}
+
+<span class="hljs-comment">//Observer.js</span>
+defineReactive(obj,key,value){
+    <span class="hljs-comment">// 循环递归 对所有层的数据进行观察</span>
+    <span class="hljs-keyword">this</span>.observe(value);<span class="hljs-comment">//这样obj也能被观察了</span>
+    <span class="hljs-keyword">const</span> dep = <span class="hljs-keyword">new</span> Dep();
+    <span class="hljs-built_in">Object</span>.defineProperty(obj,key,{
+        get(){
+            <span class="hljs-comment">//订阅数据变化,往Dep中添加观察者</span>
+            Dep.target &amp;&amp; dep.addSub(Dep.target);
+            <span class="hljs-keyword">return</span> value;
+        },
+        <span class="hljs-comment">//....省略</span>
+    })
+}
+<span class="copy-code-btn">复制代码</span></code></pre><p>当我们修改某个数据时,数据已经发生了变化,但是视图没有更新</p>
+<p></p><figure><img class="lazyload inited" data-src="https://user-gold-cdn.xitu.io/2020/6/9/1729707c446b3a68?imageView2/0/w/1280/h/960/format/webp/ignore-error/1" data-width="1280" data-height="517" src="data:image/svg+xml;utf8,&lt;?xml version=&quot;1.0&quot;?&gt;&lt;svg xmlns=&quot;http://www.w3.org/2000/svg&quot; version=&quot;1.1&quot; width=&quot;1280&quot; height=&quot;517&quot;&gt;&lt;/svg&gt;"><figcaption></figcaption></figure><p></p>
+<p>我们在什么时候来添加绑定watcher呢,继续看图</p>
+<p></p><figure><img class="lazyload inited" data-src="https://user-gold-cdn.xitu.io/2020/6/9/1729707ec99df077?imageView2/0/w/1280/h/960/format/webp/ignore-error/1" data-width="776" data-height="423" src="data:image/svg+xml;utf8,&lt;?xml version=&quot;1.0&quot;?&gt;&lt;svg xmlns=&quot;http://www.w3.org/2000/svg&quot; version=&quot;1.1&quot; width=&quot;776&quot; height=&quot;423&quot;&gt;&lt;/svg&gt;"><figcaption></figcaption></figure><p></p>
+<p>也就是说,当我们订阅数据变化时,来绑定更新函数,从而让watcher去更新视图</p>
+<p>修改</p>
+<pre><code class="hljs js copyable" lang="js"><span class="hljs-comment">// 编译模板工具类</span>
+<span class="hljs-keyword">const</span> compileUtil = {
+    <span class="hljs-comment">// 获取值的方法</span>
+    getVal(expr, vm) {
+        <span class="hljs-keyword">return</span> expr.split(<span class="hljs-string">'.'</span>).reduce(<span class="hljs-function">(<span class="hljs-params">data, currentVal</span>) =&gt;</span> {
+            <span class="hljs-keyword">return</span> data[currentVal]
+        }, vm.$data)
+    },
+    <span class="hljs-comment">//设置值</span>
+    setVal(vm,expr,val){
+        <span class="hljs-keyword">return</span> expr.split(<span class="hljs-string">'.'</span>).reduce(<span class="hljs-function">(<span class="hljs-params">data, currentVal, index, arr</span>) =&gt;</span> {
+            <span class="hljs-keyword">return</span> data[currentVal] = val
+        }, vm.$data)
+    },
+    <span class="hljs-comment">//获取新值 对{{a}}--{{b}} 这种格式进行处理</span>
+    getContentVal(expr, vm) {
+        <span class="hljs-keyword">return</span> expr.replace(<span class="hljs-regexp">/\{\{(.+?)\}\}/g</span>, (...args) =&gt; {
+            <span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>.getVal(args[<span class="hljs-number">1</span>], vm);
+        })
+    },
+    text(node, expr, vm) { <span class="hljs-comment">//expr 可能是 {{obj.name}}--{{obj.age}} </span>
+        <span class="hljs-keyword">let</span> val;
+        <span class="hljs-keyword">if</span> (expr.indexOf(<span class="hljs-string">'{{'</span>) !== <span class="hljs-number">-1</span>) {
+            <span class="hljs-comment">// </span>
+            val = expr.replace(<span class="hljs-regexp">/\{\{(.+?)\}\}/g</span>, (...args) =&gt; {
+                <span class="hljs-comment">//绑定watcher从而更新视图</span>
+                <span class="hljs-keyword">new</span> Watcher(vm,args[<span class="hljs-number">1</span>],()=&gt;{           
+                    <span class="hljs-keyword">this</span>.updater.textUpdater(node,<span class="hljs-keyword">this</span>.getContentVal(expr, vm));
+                })
+                <span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>.getVal(args[<span class="hljs-number">1</span>], vm);
+            })
+        }<span class="hljs-keyword">else</span>{ <span class="hljs-comment">//也可能是v-text='obj.name' v-text='msg'</span>
+            val = <span class="hljs-keyword">this</span>.getVal(expr,vm);
+        }
+        <span class="hljs-keyword">this</span>.updater.textUpdater(node, val);
+
+    },
+    html(node, expr, vm) {
+        <span class="hljs-comment">// html处理 非常简单 直接取值 然后调用更新函数即可</span>
+        <span class="hljs-keyword">let</span> val = <span class="hljs-keyword">this</span>.getVal(expr,vm);
+        <span class="hljs-comment">// 订阅数据变化时 绑定watcher,从而更新函数</span>
+        <span class="hljs-keyword">new</span> Watcher(vm,expr,(newVal)=&gt;{
+            <span class="hljs-keyword">this</span>.updater.htmlUpdater(node, newVal);
+        })
+        <span class="hljs-keyword">this</span>.updater.htmlUpdater(node,val);
+    },
+    model(node, expr, vm) {
+        <span class="hljs-keyword">const</span> val = <span class="hljs-keyword">this</span>.getVal(expr,vm);
+        <span class="hljs-comment">// 订阅数据变化时 绑定更新函数 更新视图的变化</span>
+
+        <span class="hljs-comment">// 数据==&gt;视图</span>
+        <span class="hljs-keyword">new</span> Watcher(vm, expr, (newVal) =&gt; {
+            <span class="hljs-keyword">this</span>.updater.modelUpdater(node, newVal);
+        })
+        <span class="hljs-comment">// 视图==&gt;数据</span>
+        node.addEventListener(<span class="hljs-string">'input'</span>,(e)=&gt;{
+            <span class="hljs-comment">// 设置值</span>
+            <span class="hljs-keyword">this</span>.setVal(vm,expr,e.target.value);
+
+        },<span class="hljs-literal">false</span>);
+        <span class="hljs-keyword">this</span>.updater.modelUpdater(node,val);
+    },
+    <span class="hljs-comment">// 对事件进行处理</span>
+    on(node, expr, vm, eventName) {
+        <span class="hljs-comment">// 获取事件函数</span>
+        <span class="hljs-keyword">let</span> fn = vm.$options.methods &amp;&amp; vm.$options.methods[expr];
+        <span class="hljs-comment">// 添加事件 因为我们使用vue时 都不需要关心this的指向问题,这是因为源码的内部帮咱们处理了this的指向</span>
+        node.addEventListener(eventName,fn.bind(vm),<span class="hljs-literal">false</span>);
+    },
+    <span class="hljs-comment">// 绑定属性 简单的属性 已经处理 类名样式的绑定有点复杂 因为对应的值可能是对象 也可能是数组 大家根据个人能力尝试写一下</span>
+    bind(node,expr,vm,attrName){
+        <span class="hljs-keyword">let</span> attrVal = <span class="hljs-keyword">this</span>.getVal(expr,vm);
+        <span class="hljs-keyword">this</span>.updater.attrUpdater(node,attrName,attrVal);
+    },
+    <span class="hljs-attr">updater</span>: {
+        attrUpdater(node, attrName, attrVal){
+            node.setAttribute(attrName,attrVal);
+        },
+        modelUpdater(node,value){
+            node.value = value;
+        },
+        textUpdater(node, value) {
+            node.textContent = value;
+        },
+        htmlUpdater(node,value){
+            node.innerHTML = value;
+        }
+    }
+
+}
+<span class="copy-code-btn">复制代码</span></code></pre><h3 class="heading" data-id="heading-12">代理proxy</h3>
+<p>我们在使用vue的时候,通常可以直接vm.msg来获取数据,这是因为vue源码内部做了一层代理.也就是说把数据获取操作vm上的取值操作 都代理到vm.$data上</p>
+<pre><code class="hljs js copyable" lang="js"><span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Vue</span> </span>{
+    <span class="hljs-keyword">constructor</span>(options) {
+        <span class="hljs-keyword">this</span>.$data = options.data;
+        <span class="hljs-keyword">this</span>.$el = options.el;
+        <span class="hljs-keyword">this</span>.$options = options
+        <span class="hljs-comment">// 如果这个根元素存在开始编译模板</span>
+        <span class="hljs-keyword">if</span> (<span class="hljs-keyword">this</span>.$el) {
+            <span class="hljs-comment">// 1.实现一个数据监听器Observe</span>
+            <span class="hljs-comment">// 能够对数据对象的所有属性进行监听，如有变动可拿到最新值并通知订阅者</span>
+            <span class="hljs-comment">// Object.definerProperty()来定义</span>
+            <span class="hljs-keyword">new</span> Observer(<span class="hljs-keyword">this</span>.$data);
+
+            <span class="hljs-comment">// 把数据获取操作 vm上的取值操作 都代理到vm.$data上</span>
+            <span class="hljs-keyword">this</span>.proxyData(<span class="hljs-keyword">this</span>.$data);
+            
+            <span class="hljs-comment">// 2.实现一个指令解析器Compile</span>
+            <span class="hljs-keyword">new</span> Compiler(<span class="hljs-keyword">this</span>.$el, <span class="hljs-keyword">this</span>);
+
+        }
+    }
+    <span class="hljs-comment">// 做个代理</span>
+    proxyData(data){
+       <span class="hljs-keyword">for</span> (<span class="hljs-keyword">const</span> key <span class="hljs-keyword">in</span> data) {
+          <span class="hljs-built_in">Object</span>.defineProperty(<span class="hljs-keyword">this</span>,key,{
+              get(){
+                  <span class="hljs-keyword">return</span> data[key];
+              },
+              set(newVal){
+                  data[key] = newVal;
+              }
+          })
+       }
+    }
+}
+<span class="copy-code-btn">复制代码</span></code></pre><h3 class="heading" data-id="heading-13">面试题</h3>
+<p>阐述一下你所理解vue的MVVM响应式原理</p>
+<p>vue.js 则是采用数据劫持结合发布者-订阅者模式的方式，通过<code>Object.defineProperty()</code>来劫持各个属性的<code>setter</code>，<code>getter</code>，在数据变动时发布消息给订阅者，触发相应的监听回调。</p>
+<p>MVVM作为数据绑定的入口，整合Observer、Compile和Watcher三者，通过Observer来监听自己的model数据变化，通过Compile来解析编译模板指令，最终利用Watcher搭起Observer和Compile之间的通信桥梁，达到数据变化 -&gt; 视图更新；视图交互变化(input) -&gt; 数据model变更的双向绑定效果</p>
+<p>再配合上面的那张图,想不入职都很难</p>
+<p></p><figure><img class="lazyload inited loaded" data-src="https://user-gold-cdn.xitu.io/2020/6/9/17297083977dad4d?imageView2/0/w/1280/h/960/format/webp/ignore-error/1" data-width="1280" data-height="682" src="./Vue的MVVM实现原理 - 掘金_files/17297083977dad4d"><figcaption></figcaption></figure><p></p>
+</div></article><div data-v-0b1a4f9a="" data-v-575c8a08="" class="tag-list-box"><div data-v-0b1a4f9a="" data-v-575c8a08="" class="tag-list-title">关注下面的标签，发现更多相似文章</div><div data-v-0b1a4f9a="" data-v-575c8a08="" st:block="tagList" class="tag-list"><a data-v-0b1a4f9a="" href="https://juejin.im/tag/Vue.js" target="_blank" rel="" st:name="tag" class="item" data-v-575c8a08=""><div data-v-e232e062="" data-v-02a6947c="" data-v-0b1a4f9a="" data-src="https://lc-gold-cdn.xitu.io/7b5c3eb591b671749fee.png?imageView2/2/w/42/h/42/q/85/format/webp/interlace/1" class="lazy thumb tag-icon" style="background-image: none; background-size: contain;"></div><div data-v-0b1a4f9a="" class="tag-title">Vue.js</div></a></div></div><a data-v-0b1a4f9a="" href="https://juejin.im/user/5954c8375188250d9a3eb3bd" target="_blank" rel="" data-v-575c8a08=""><div data-v-0b1a4f9a="" class="footer-author-block"><div data-v-7bb2fea5="" data-v-0b1a4f9a="" itemscope="itemscope" itemtype="http://schema.org/Person" class="author"><meta itemprop="url" content="https://juejin.im/user/5954c8375188250d9a3eb3bd"><meta itemprop="image" content="https://user-gold-cdn.xitu.io/2020/4/17/17186a4c9f7ff052?w=150&amp;h=150&amp;f=png&amp;s=11915"><meta itemprop="name" content="笑马哥"><meta itemprop="jobTitle" content="高级前端开发"><!----><div data-v-7bb2fea5="" class="author-info-block"><a data-v-7bb2fea5="" href="https://juejin.im/user/5954c8375188250d9a3eb3bd" target="_blank" rel="" class="avatar-link"><div data-v-e232e062="" data-v-4bc4293a="" data-v-7bb2fea5="" data-src="https://user-gold-cdn.xitu.io/2020/4/17/17186a4c9f7ff052?imageView2/1/w/100/h/100/q/85/format/webp/interlace/1" class="lazy avatar avatar" style="background-image: none;"></div></a><div data-v-7bb2fea5="" class="author-info-box"><div data-v-7bb2fea5="" class="profile-box"><a data-v-b8de4708="" data-v-7bb2fea5="" href="https://juejin.im/user/5954c8375188250d9a3eb3bd" target="_blank" rel="" class="username username ellipsis">笑马哥<a data-v-b9e98e56="" data-v-b8de4708="" href="https://juejin.im/book/5c90640c5188252d7941f5bb/section/5c9065385188252da6320022" target="_blank" rel="" class="rank"><img data-v-b9e98e56="" src="./Vue的MVVM实现原理 - 掘金_files/lv-1.636691c.svg" alt="lv-1"></a></a><span data-v-7bb2fea5="" class="position ellipsis">高级前端开发</span></div><div data-v-7bb2fea5="" class="meta-box"><a data-v-7bb2fea5="" href="https://juejin.im/user/5954c8375188250d9a3eb3bd/posts" target="_blank" rel="" class="posts"><span data-v-7bb2fea5="" class="count post-count">发布了 11 篇专栏 · </span></a><span data-v-7bb2fea5="" class="count">获得点赞 45 · </span><span data-v-7bb2fea5="" class="count">获得阅读 2,149</span></div></div><button data-v-1de19339="" data-v-7bb2fea5="" class="follow-button follow">关注</button></div></div></div></a><div data-v-0b1a4f9a="" data-v-575c8a08="" st:block="banner" class="article-banner"><a data-v-0b1a4f9a="" data-v-575c8a08="" st:name="link" st:state="https://juejin.im/extension/?utm_source=juejin.im&amp;utm_medium=post&amp;utm_campaign=extension_promotion" class="banner-title" href="https://juejin.im/extension/?utm_source=juejin.im&amp;utm_medium=post&amp;utm_campaign=extension_promotion" target="_blank">安装掘金浏览器插件</a><div data-v-0b1a4f9a="" data-v-575c8a08="" class="banner-content">打开新标签页发现好内容，掘金、GitHub、Dribbble、ProductHunt 等站点内容轻松获取。快来安装掘金浏览器插件获取高质量内容吧！</div></div><!----><!----><div data-v-155e8a6c="" data-v-0b1a4f9a="" class="comment-list-box" id="comment-box" data-v-575c8a08=""><div data-v-155e8a6c="" class="title">评论</div><div data-v-2761ac2b="" data-v-155e8a6c="" class="comment-form comment-form"><div data-v-2761ac2b="" class="avatar-box"><div data-v-e232e062="" data-v-4bc4293a="" data-v-2761ac2b="" data-src="https://b-gold-cdn.xitu.io/v3/static/img/default-avatar.e30559a.svg" class="lazy avatar avatar" style="background-image: none;"></div></div><div data-v-2761ac2b="" class="form-box"><div data-v-2761ac2b="" class="input-box"><div data-v-171c4b3f="" data-v-2761ac2b="" class="auth-card"><!----><div data-v-2761ac2b="" data-v-171c4b3f="" contenteditable="true" spellcheck="false" placeholder="输入评论..." class="rich-input empty"><br data-v-2761ac2b="" data-v-171c4b3f=""></div></div><!----></div><!----></div><input data-v-2761ac2b="" type="file" class="hidden"></div><div data-v-4750593f="" data-v-155e8a6c="" class="comment-list comment-list"><div data-v-fa31c83e="" data-v-4750593f="" class="image-viewer-box"><!----></div><div data-v-4750593f="" class="item"><div data-v-d4ef8f8c="" data-v-4750593f="" class="comment comment"><div data-v-1d890915="" data-v-d4ef8f8c="" st:block="userPopover" st:state="5d57913c6fb9a06b317b5e97" class="user-popover-box popover"><!----><a data-v-d4ef8f8c="" href="https://juejin.im/user/5d57913c6fb9a06b317b5e97" target="_blank" rel="" class="user-link" data-v-1d890915=""><div data-v-e232e062="" data-v-4bc4293a="" data-v-d4ef8f8c="" data-src="https://user-gold-cdn.xitu.io/2020/6/28/172fb00a96f1d782?imageView2/1/w/100/h/100/q/85/format/webp/interlace/1" class="lazy avatar avatar" style="background-image: none;"></div></a></div><div data-v-d4ef8f8c="" class="content-box comment-divider-line"><div data-v-d4ef8f8c="" class="meta-box"><div data-v-1d890915="" data-v-d4ef8f8c="" st:block="userPopover" st:state="5d57913c6fb9a06b317b5e97" class="user-popover-box"><!----><a data-v-b8de4708="" data-v-d4ef8f8c="" href="https://juejin.im/user/5d57913c6fb9a06b317b5e97" target="_blank" rel="" class="username username ellipsis" data-v-1d890915="">远方_未至<!----></a></div><div data-v-d4ef8f8c="" class="position">前端 @ 准备求职中</div></div><div data-v-d4ef8f8c="" class="content">最开头的那个textare是不是少了个a呀textarea</div><div data-v-d4ef8f8c="" class="limit-ctl-box"><!----><!----></div><!----><div data-v-d4ef8f8c="" class="reply-stat"><time data-v-d4ef8f8c="" datetime="2020-06-28T15:36:19.587Z" title="Sun Jun 28 2020 23:36:19 GMT+0800 (中国标准时间)" class="time">20小时前</time><div data-v-d4ef8f8c="" class="delete"> &nbsp;·&nbsp;删除</div><div data-v-d4ef8f8c="" class="action-box"><div data-v-d4ef8f8c="" class="like-action action"><svg data-v-d4ef8f8c="" aria-hidden="true" width="16" height="16" viewBox="0 0 20 20" class="icon like-icon"><g data-v-d4ef8f8c="" fill="none" fill-rule="evenodd"><path data-v-d4ef8f8c="" d="M0 0h20v20H0z"></path> <path data-v-d4ef8f8c="" stroke="#8A93A0" stroke-linejoin="round" d="M4.58 8.25V17h-1.4C2.53 17 2 16.382 2 15.624V9.735c0-.79.552-1.485 1.18-1.485h1.4zM11.322 2c1.011.019 1.614.833 1.823 1.235.382.735.392 1.946.13 2.724-.236.704-.785 1.629-.785 1.629h4.11c.434 0 .838.206 1.107.563.273.365.363.84.24 1.272l-1.86 6.513A1.425 1.425 0 0 1 14.724 17H6.645V7.898C8.502 7.51 9.643 4.59 9.852 3.249A1.47 1.47 0 0 1 11.322 2z"></path></g></svg><!----></div><div data-v-d4ef8f8c="" class="comment-action action"><svg data-v-d4ef8f8c="" aria-hidden="true" width="16" height="16" viewBox="0 0 20 20" class="icon comment-icon"><g data-v-d4ef8f8c="" fill="none" fill-rule="evenodd"><path data-v-d4ef8f8c="" d="M0 0h20v20H0z"></path> <path data-v-d4ef8f8c="" stroke="#8A93A0" stroke-linejoin="round" d="M10 17c-4.142 0-7.5-2.91-7.5-6.5S5.858 4 10 4c4.142 0 7.5 2.91 7.5 6.5 0 1.416-.522 2.726-1.41 3.794-.129.156.41 3.206.41 3.206l-3.265-1.134c-.998.369-2.077.634-3.235.634z"></path></g></svg> <span data-v-d4ef8f8c="" class="action-title">回复</span></div></div></div><!----><div data-v-1433d878="" data-v-d4ef8f8c="" class="sub-comment-list sub-comment-list"><!----></div></div><!----></div></div><div data-v-4750593f="" class="item"><div data-v-d4ef8f8c="" data-v-4750593f="" class="comment comment"><div data-v-1d890915="" data-v-d4ef8f8c="" st:block="userPopover" st:state="5eeb73396fb9a0585663f841" class="user-popover-box popover"><!----><a data-v-d4ef8f8c="" href="https://juejin.im/user/5eeb73396fb9a0585663f841" target="_blank" rel="" class="user-link" data-v-1d890915=""><div data-v-e232e062="" data-v-4bc4293a="" data-v-d4ef8f8c="" data-src="https://mirror-gold-cdn.xitu.io/172c7ba1e62cc3f7a65?imageView2/1/w/100/h/100/q/85/format/webp/interlace/1" class="lazy avatar avatar" style="background-image: none;"></div></a></div><div data-v-d4ef8f8c="" class="content-box comment-divider-line"><div data-v-d4ef8f8c="" class="meta-box"><div data-v-1d890915="" data-v-d4ef8f8c="" st:block="userPopover" st:state="5eeb73396fb9a0585663f841" class="user-popover-box"><!----><a data-v-b8de4708="" data-v-d4ef8f8c="" href="https://juejin.im/user/5eeb73396fb9a0585663f841" target="_blank" rel="" class="username username ellipsis" data-v-1d890915="">昏君同学<a data-v-b9e98e56="" data-v-b8de4708="" href="https://juejin.im/book/5c90640c5188252d7941f5bb/section/5c9065385188252da6320022" target="_blank" rel="" class="rank"><img data-v-b9e98e56="" src="./Vue的MVVM实现原理 - 掘金_files/lv-1.636691c.svg" alt="lv-1"></a></a></div><div data-v-d4ef8f8c="" class="position"></div></div><div data-v-d4ef8f8c="" class="content">没有看到创建虚拟dom，没有新旧虚拟dom比较。diff算法 求讲解一波</div><div data-v-d4ef8f8c="" class="limit-ctl-box"><!----><!----></div><!----><div data-v-d4ef8f8c="" class="reply-stat"><time data-v-d4ef8f8c="" datetime="2020-06-28T09:26:30.050Z" title="Sun Jun 28 2020 17:26:30 GMT+0800 (中国标准时间)" class="time">1天前</time><div data-v-d4ef8f8c="" class="delete"> &nbsp;·&nbsp;删除</div><div data-v-d4ef8f8c="" class="action-box"><div data-v-d4ef8f8c="" class="like-action action"><svg data-v-d4ef8f8c="" aria-hidden="true" width="16" height="16" viewBox="0 0 20 20" class="icon like-icon"><g data-v-d4ef8f8c="" fill="none" fill-rule="evenodd"><path data-v-d4ef8f8c="" d="M0 0h20v20H0z"></path> <path data-v-d4ef8f8c="" stroke="#8A93A0" stroke-linejoin="round" d="M4.58 8.25V17h-1.4C2.53 17 2 16.382 2 15.624V9.735c0-.79.552-1.485 1.18-1.485h1.4zM11.322 2c1.011.019 1.614.833 1.823 1.235.382.735.392 1.946.13 2.724-.236.704-.785 1.629-.785 1.629h4.11c.434 0 .838.206 1.107.563.273.365.363.84.24 1.272l-1.86 6.513A1.425 1.425 0 0 1 14.724 17H6.645V7.898C8.502 7.51 9.643 4.59 9.852 3.249A1.47 1.47 0 0 1 11.322 2z"></path></g></svg><!----></div><div data-v-d4ef8f8c="" class="comment-action action"><svg data-v-d4ef8f8c="" aria-hidden="true" width="16" height="16" viewBox="0 0 20 20" class="icon comment-icon"><g data-v-d4ef8f8c="" fill="none" fill-rule="evenodd"><path data-v-d4ef8f8c="" d="M0 0h20v20H0z"></path> <path data-v-d4ef8f8c="" stroke="#8A93A0" stroke-linejoin="round" d="M10 17c-4.142 0-7.5-2.91-7.5-6.5S5.858 4 10 4c4.142 0 7.5 2.91 7.5 6.5 0 1.416-.522 2.726-1.41 3.794-.129.156.41 3.206.41 3.206l-3.265-1.134c-.998.369-2.077.634-3.235.634z"></path></g></svg> <span data-v-d4ef8f8c="" class="action-title">回复</span></div></div></div><!----><div data-v-1433d878="" data-v-d4ef8f8c="" class="sub-comment-list sub-comment-list"><!----></div></div><!----></div></div><div data-v-4750593f="" class="item"><div data-v-d4ef8f8c="" data-v-4750593f="" class="comment comment"><div data-v-1d890915="" data-v-d4ef8f8c="" st:block="userPopover" st:state="5c9c1b7d6fb9a070bd59b1bc" class="user-popover-box popover"><!----><a data-v-d4ef8f8c="" href="https://juejin.im/user/5c9c1b7d6fb9a070bd59b1bc" target="_blank" rel="" class="user-link" data-v-1d890915=""><div data-v-e232e062="" data-v-4bc4293a="" data-v-d4ef8f8c="" data-src="https://mirror-gold-cdn.xitu.io/169c1cb6654a4b06c30?imageView2/1/w/100/h/100/q/85/format/webp/interlace/1" class="lazy avatar avatar" style="background-image: none;"></div></a></div><div data-v-d4ef8f8c="" class="content-box comment-divider-line"><div data-v-d4ef8f8c="" class="meta-box"><div data-v-1d890915="" data-v-d4ef8f8c="" st:block="userPopover" st:state="5c9c1b7d6fb9a070bd59b1bc" class="user-popover-box"><!----><a data-v-b8de4708="" data-v-d4ef8f8c="" href="https://juejin.im/user/5c9c1b7d6fb9a070bd59b1bc" target="_blank" rel="" class="username username ellipsis" data-v-1d890915="">伍伍怀<a data-v-b9e98e56="" data-v-b8de4708="" href="https://juejin.im/book/5c90640c5188252d7941f5bb/section/5c9065385188252da6320022" target="_blank" rel="" class="rank"><img data-v-b9e98e56="" src="./Vue的MVVM实现原理 - 掘金_files/lv-1.636691c.svg" alt="lv-1"></a></a></div><div data-v-d4ef8f8c="" class="position">前端开发</div></div><div data-v-d4ef8f8c="" class="content">v-bind的好像不行呀，哥，是我抄的有问题吗，attrVal总是undefined</div><div data-v-d4ef8f8c="" class="limit-ctl-box"><!----><!----></div><!----><div data-v-d4ef8f8c="" class="reply-stat"><time data-v-d4ef8f8c="" datetime="2020-06-22T08:10:20.627Z" title="Mon Jun 22 2020 16:10:20 GMT+0800 (中国标准时间)" class="time">7天前</time><div data-v-d4ef8f8c="" class="delete"> &nbsp;·&nbsp;删除</div><div data-v-d4ef8f8c="" class="action-box"><div data-v-d4ef8f8c="" class="like-action action"><svg data-v-d4ef8f8c="" aria-hidden="true" width="16" height="16" viewBox="0 0 20 20" class="icon like-icon"><g data-v-d4ef8f8c="" fill="none" fill-rule="evenodd"><path data-v-d4ef8f8c="" d="M0 0h20v20H0z"></path> <path data-v-d4ef8f8c="" stroke="#8A93A0" stroke-linejoin="round" d="M4.58 8.25V17h-1.4C2.53 17 2 16.382 2 15.624V9.735c0-.79.552-1.485 1.18-1.485h1.4zM11.322 2c1.011.019 1.614.833 1.823 1.235.382.735.392 1.946.13 2.724-.236.704-.785 1.629-.785 1.629h4.11c.434 0 .838.206 1.107.563.273.365.363.84.24 1.272l-1.86 6.513A1.425 1.425 0 0 1 14.724 17H6.645V7.898C8.502 7.51 9.643 4.59 9.852 3.249A1.47 1.47 0 0 1 11.322 2z"></path></g></svg><!----></div><div data-v-d4ef8f8c="" class="comment-action action"><svg data-v-d4ef8f8c="" aria-hidden="true" width="16" height="16" viewBox="0 0 20 20" class="icon comment-icon"><g data-v-d4ef8f8c="" fill="none" fill-rule="evenodd"><path data-v-d4ef8f8c="" d="M0 0h20v20H0z"></path> <path data-v-d4ef8f8c="" stroke="#8A93A0" stroke-linejoin="round" d="M10 17c-4.142 0-7.5-2.91-7.5-6.5S5.858 4 10 4c4.142 0 7.5 2.91 7.5 6.5 0 1.416-.522 2.726-1.41 3.794-.129.156.41 3.206.41 3.206l-3.265-1.134c-.998.369-2.077.634-3.235.634z"></path></g></svg> <span data-v-d4ef8f8c="" class="action-title">回复</span></div></div></div><!----><div data-v-1433d878="" data-v-d4ef8f8c="" class="sub-comment-list sub-comment-list"><div data-v-1433d878="" class="item"><div data-v-4753cf06="" data-v-1433d878="" class="sub-comment sub-comment"><div data-v-4753cf06="" class="sub-comment-content-row"><div data-v-4753cf06="" class="sub-comment-content-box"><div data-v-1d890915="" data-v-4753cf06="" st:block="userPopover" st:state="58c23efc61ff4b005d872ab8" class="user-popover-box popover"><!----><a data-v-4753cf06="" href="https://juejin.im/user/58c23efc61ff4b005d872ab8" target="_blank" rel="" class="username" data-v-1d890915=""><div data-v-e232e062="" data-v-4bc4293a="" data-v-4753cf06="" data-src="https://user-gold-cdn.xitu.io/2019/11/14/16e689603b91bda5?imageView2/1/w/100/h/100/q/85/format/webp/interlace/1" class="lazy avatar avatar" style="background-image: none;"></div></a></div><div data-v-4753cf06="" class="user-content-box"><div data-v-4753cf06="" class="profie"><div data-v-1d890915="" data-v-4753cf06="" st:block="userPopover" st:state="58c23efc61ff4b005d872ab8" class="user-popover-box"><!----><a data-v-b8de4708="" data-v-4753cf06="" href="https://juejin.im/user/58c23efc61ff4b005d872ab8" target="_blank" rel="" class="username" data-v-1d890915="">特立独爬的蜗牛<a data-v-b9e98e56="" data-v-b8de4708="" href="https://juejin.im/book/5c90640c5188252d7941f5bb/section/5c9065385188252da6320022" target="_blank" rel="" class="rank"><img data-v-b9e98e56="" src="./Vue的MVVM实现原理 - 掘金_files/lv-2.f597b88.svg" alt="lv-2"></a></a></div><div data-v-4753cf06="" class="position">FEer</div></div><div data-v-4753cf06="" class="content-box"><span data-v-4753cf06=""> 回复 </span><div data-v-1d890915="" data-v-4753cf06="" st:block="userPopover" st:state="5c9c1b7d6fb9a070bd59b1bc" class="user-popover-box"><!----><a data-v-b8de4708="" data-v-4753cf06="" href="https://juejin.im/user/5c9c1b7d6fb9a070bd59b1bc" target="_blank" rel="" class="username username be-replied" data-v-1d890915="">伍伍怀<a data-v-b9e98e56="" data-v-b8de4708="" href="https://juejin.im/book/5c90640c5188252d7941f5bb/section/5c9065385188252da6320022" target="_blank" rel="" class="rank"><img data-v-b9e98e56="" src="./Vue的MVVM实现原理 - 掘金_files/lv-1.636691c.svg" alt="lv-1"></a></a></div><!----><span data-v-4753cf06="">: </span><span data-v-4753cf06="" class="content">Show your key code,please</span></div><!----><!----><div data-v-4753cf06="" class="limit-all-box"><!----></div><div data-v-4753cf06="" class="sub-comment-stat-box"><time data-v-4753cf06="" datetime="2020-06-25T07:56:07.821Z" title="Thu Jun 25 2020 15:56:07 GMT+0800 (中国标准时间)" class="time">4天前</time><div data-v-4753cf06="" class="delete"> &nbsp;·&nbsp;删除</div><div data-v-4753cf06="" class="sub-comment-action-box"><div data-v-4753cf06="" class="like-action action"><svg data-v-4753cf06="" aria-hidden="true" width="16" height="16" viewBox="0 0 20 20" class="icon like-icon"><g data-v-4753cf06="" fill="none" fill-rule="evenodd"><path data-v-4753cf06="" d="M0 0h20v20H0z"></path> <path data-v-4753cf06="" stroke="#8A93A0" stroke-linejoin="round" d="M4.58 8.25V17h-1.4C2.53 17 2 16.382 2 15.624V9.735c0-.79.552-1.485 1.18-1.485h1.4zM11.322 2c1.011.019 1.614.833 1.823 1.235.382.735.392 1.946.13 2.724-.236.704-.785 1.629-.785 1.629h4.11c.434 0 .838.206 1.107.563.273.365.363.84.24 1.272l-1.86 6.513A1.425 1.425 0 0 1 14.724 17H6.645V7.898C8.502 7.51 9.643 4.59 9.852 3.249A1.47 1.47 0 0 1 11.322 2z"></path></g></svg><!----></div><div data-v-4753cf06="" class="comment-action action"><svg data-v-4753cf06="" aria-hidden="true" width="16" height="16" viewBox="0 0 20 20" class="icon comment-icon"><g data-v-4753cf06="" fill="none" fill-rule="evenodd"><path data-v-4753cf06="" d="M0 0h20v20H0z"></path> <path data-v-4753cf06="" stroke="#8A93A0" stroke-linejoin="round" d="M10 17c-4.142 0-7.5-2.91-7.5-6.5S5.858 4 10 4c4.142 0 7.5 2.91 7.5 6.5 0 1.416-.522 2.726-1.41 3.794-.129.156.41 3.206.41 3.206l-3.265-1.134c-.998.369-2.077.634-3.235.634z"></path></g></svg> <span data-v-4753cf06="">回复</span></div></div></div><!----></div></div></div><!----></div></div><!----></div></div><!----></div></div></div><!----></div></div><!----><div data-v-0b1a4f9a="" data-v-575c8a08="" st:block="recommended" class="main-area recommended-area shadow"><div data-v-0b1a4f9a="" data-v-575c8a08="" class="recommended-entry-list-title">相关推荐</div><!----><ul data-v-687302b1="" data-v-0b1a4f9a="" st:block="entryList" class="entry-list recommended-entry-list" data-v-575c8a08=""><!----><li data-v-687302b1="" data-growing-container="true" data-growing-title="entryList" class="item"><div data-v-749496f0="" data-v-687302b1="" class="entry-box"><div data-v-ccfa68c6="" data-v-749496f0="" st:block="entry" st:state="5ef95b7ee51d4534c24386ea|1" class="entry"><a data-v-ccfa68c6="" href="https://juejin.im/post/5ef959e25188252e974ede2d" target="_blank" rel="" st:name="link" class="entry-link"><div data-v-ccfa68c6="" class="content-box"><div data-v-ccfa68c6="" class="info-box"><div data-v-ccfa68c6="" class="info-row meta-row"><ul data-v-ccfa68c6="" class="meta-list"><!----><!----><li data-v-ccfa68c6="" class="item post">专栏</li><li data-v-ccfa68c6="" class="item username clickable"><div data-v-1d890915="" data-v-ccfa68c6="" st:block="userPopover" st:state="5dcd6c1ce51d450808405052" class="user-popover-box"><!----><a data-v-ccfa68c6="" href="https://juejin.im/user/5dcd6c1ce51d450808405052" target="_blank" rel="" st:name="user" st:state="5dcd6c1ce51d450808405052" data-v-1d890915="">叫我阿琛</a></div></li><li data-v-ccfa68c6="" class="item">9小时前</li><li data-v-ccfa68c6="" class="item tag"><a data-v-ccfa68c6="" href="https://juejin.im/tag/Vue.js" target="_blank" rel="" st:name="tag" st:state="555e9a98e4b00c57d9955f68" class="tag">Vue.js</a></li><!----></ul></div><div data-v-ccfa68c6="" class="info-row title-row"><!----><!----><a data-v-ccfa68c6="" href="https://juejin.im/post/5ef959e25188252e974ede2d" target="_blank" rel="" st:name="title" class="title">万字总结Vue(包含全家桶),希望这一篇可以帮到您</a></div><div data-v-ccfa68c6="" class="info-row action-row"><ul data-v-ccfa68c6="" class="action-list"><li data-v-ccfa68c6="" st:name="likeBtn" class="item like clickable"><a data-v-ccfa68c6="" class="title-box"><img data-v-ccfa68c6="" src="./Vue的MVVM实现原理 - 掘金_files/zan.e9d7698.svg" class="icon"><span data-v-ccfa68c6="" class="count">33</span></a></li><li data-v-ccfa68c6="" st:name="commentBtn" class="item comment clickable"><a data-v-ccfa68c6="" href="https://juejin.im/post/5ef959e25188252e974ede2d#comment" target="_blank" rel="" class="title-box"><img data-v-ccfa68c6="" src="./Vue的MVVM实现原理 - 掘金_files/comment.4d5744f.svg" class="icon"><span data-v-ccfa68c6="" class="count">4</span></a></li><li data-v-ccfa68c6="" st:name="shareBtn" title="分享" class="item share clickable hover"><img data-v-ccfa68c6="" src="./Vue的MVVM实现原理 - 掘金_files/share.1d55e69.svg" class="icon"><div data-v-ccfa68c6="" class="share-panel"><div data-v-ccfa68c6="" st:name="shareItem" st:state="weibo" class="share-item weibo"><img data-v-ccfa68c6="" src="./Vue的MVVM实现原理 - 掘金_files/weibo.8e2f5d6.svg" class="icon">微博</div><div data-v-ccfa68c6="" st:name="shareItem" st:state="wechat" class="share-item wechat"><img data-v-ccfa68c6="" src="./Vue的MVVM实现原理 - 掘金_files/wechat.844402c.svg" class="icon">微信扫一扫<div data-v-ccfa68c6="" class="qr-code-box"><img data-v-ccfa68c6="" src="https://juejin.im/post/5edefb32518825431373704c" class="qr-code"></div></div></div></li><li data-v-ccfa68c6="" title="收藏" st:name="collectBtn" class="item collect clickable hover"><img data-v-ccfa68c6="" src="./Vue的MVVM实现原理 - 掘金_files/collect.02e2979.svg" class="icon"><!----></li><!----></ul></div></div><!----></div></a></div></div></li><li data-v-687302b1="" data-growing-container="true" data-growing-title="entryList" class="item"><div data-v-749496f0="" data-v-687302b1="" class="entry-box"><div data-v-ccfa68c6="" data-v-749496f0="" st:block="entry" st:state="5ef7d4ece51d4534a20868e5|2" class="entry"><a data-v-ccfa68c6="" href="https://juejin.im/post/5ef6d1325188252e75366ab5" target="_blank" rel="" st:name="link" class="entry-link"><div data-v-ccfa68c6="" class="content-box"><div data-v-ccfa68c6="" class="info-box"><div data-v-ccfa68c6="" class="info-row meta-row"><ul data-v-ccfa68c6="" class="meta-list"><!----><!----><li data-v-ccfa68c6="" class="item post">专栏</li><li data-v-ccfa68c6="" class="item username clickable"><div data-v-1d890915="" data-v-ccfa68c6="" st:block="userPopover" st:state="57e60c005bbb50005d51d852" class="user-popover-box"><!----><a data-v-ccfa68c6="" href="https://juejin.im/user/57e60c005bbb50005d51d852" target="_blank" rel="" st:name="user" st:state="57e60c005bbb50005d51d852" data-v-1d890915="">前端进击者</a></div></li><li data-v-ccfa68c6="" class="item">1天前</li><li data-v-ccfa68c6="" class="item tag"><a data-v-ccfa68c6="" href="https://juejin.im/tag/Vue.js" target="_blank" rel="" st:name="tag" st:state="555e9a98e4b00c57d9955f68" class="tag">Vue.js</a></li><!----></ul></div><div data-v-ccfa68c6="" class="info-row title-row"><!----><!----><a data-v-ccfa68c6="" href="https://juejin.im/post/5ef6d1325188252e75366ab5" target="_blank" rel="" st:name="title" class="title">前方高能，这是最新的一波Vue实战技巧，不用则已，一用惊人</a></div><div data-v-ccfa68c6="" class="info-row action-row"><ul data-v-ccfa68c6="" class="action-list"><li data-v-ccfa68c6="" st:name="likeBtn" class="item like clickable"><a data-v-ccfa68c6="" class="title-box"><img data-v-ccfa68c6="" src="./Vue的MVVM实现原理 - 掘金_files/zan.e9d7698.svg" class="icon"><span data-v-ccfa68c6="" class="count">475</span></a></li><li data-v-ccfa68c6="" st:name="commentBtn" class="item comment clickable"><a data-v-ccfa68c6="" href="https://juejin.im/post/5ef6d1325188252e75366ab5#comment" target="_blank" rel="" class="title-box"><img data-v-ccfa68c6="" src="./Vue的MVVM实现原理 - 掘金_files/comment.4d5744f.svg" class="icon"><span data-v-ccfa68c6="" class="count">54</span></a></li><li data-v-ccfa68c6="" st:name="shareBtn" title="分享" class="item share clickable hover"><img data-v-ccfa68c6="" src="./Vue的MVVM实现原理 - 掘金_files/share.1d55e69.svg" class="icon"><div data-v-ccfa68c6="" class="share-panel"><div data-v-ccfa68c6="" st:name="shareItem" st:state="weibo" class="share-item weibo"><img data-v-ccfa68c6="" src="./Vue的MVVM实现原理 - 掘金_files/weibo.8e2f5d6.svg" class="icon">微博</div><div data-v-ccfa68c6="" st:name="shareItem" st:state="wechat" class="share-item wechat"><img data-v-ccfa68c6="" src="./Vue的MVVM实现原理 - 掘金_files/wechat.844402c.svg" class="icon">微信扫一扫<div data-v-ccfa68c6="" class="qr-code-box"><img data-v-ccfa68c6="" src="https://juejin.im/post/5edefb32518825431373704c" class="qr-code"></div></div></div></li><li data-v-ccfa68c6="" title="收藏" st:name="collectBtn" class="item collect clickable hover"><img data-v-ccfa68c6="" src="./Vue的MVVM实现原理 - 掘金_files/collect.02e2979.svg" class="icon"><!----></li><!----></ul></div></div><!----></div></a></div></div></li><li data-v-687302b1="" data-growing-container="true" data-growing-title="entryList" class="item"><div data-v-749496f0="" data-v-687302b1="" class="entry-box"><div data-v-ccfa68c6="" data-v-749496f0="" st:block="entry" st:state="5eefebfee51d4573e0608749|3" class="entry"><a data-v-ccfa68c6="" href="https://juejin.im/post/5eef7799f265da02cd3b82fe" target="_blank" rel="" st:name="link" class="entry-link"><div data-v-ccfa68c6="" class="content-box"><div data-v-ccfa68c6="" class="info-box"><div data-v-ccfa68c6="" class="info-row meta-row"><ul data-v-ccfa68c6="" class="meta-list"><!----><li data-v-ccfa68c6="" class="item hot">热</li><li data-v-ccfa68c6="" class="item post">专栏</li><li data-v-ccfa68c6="" class="item username clickable"><div data-v-1d890915="" data-v-ccfa68c6="" st:block="userPopover" st:state="57e60c005bbb50005d51d852" class="user-popover-box"><!----><a data-v-ccfa68c6="" href="https://juejin.im/user/57e60c005bbb50005d51d852" target="_blank" rel="" st:name="user" st:state="57e60c005bbb50005d51d852" data-v-1d890915="">前端进击者</a></div></li><li data-v-ccfa68c6="" class="item">7天前</li><li data-v-ccfa68c6="" class="item tag"><a data-v-ccfa68c6="" href="https://juejin.im/tag/Vue.js" target="_blank" rel="" st:name="tag" st:state="555e9a98e4b00c57d9955f68" class="tag">Vue.js</a></li><!----></ul></div><div data-v-ccfa68c6="" class="info-row title-row"><!----><!----><a data-v-ccfa68c6="" href="https://juejin.im/post/5eef7799f265da02cd3b82fe" target="_blank" rel="" st:name="title" class="title">实战技巧，Vue原来还可以这样写</a></div><div data-v-ccfa68c6="" class="info-row action-row"><ul data-v-ccfa68c6="" class="action-list"><li data-v-ccfa68c6="" st:name="likeBtn" class="item like clickable"><a data-v-ccfa68c6="" class="title-box"><img data-v-ccfa68c6="" src="./Vue的MVVM实现原理 - 掘金_files/zan.e9d7698.svg" class="icon"><span data-v-ccfa68c6="" class="count">1897</span></a></li><li data-v-ccfa68c6="" st:name="commentBtn" class="item comment clickable"><a data-v-ccfa68c6="" href="https://juejin.im/post/5eef7799f265da02cd3b82fe#comment" target="_blank" rel="" class="title-box"><img data-v-ccfa68c6="" src="./Vue的MVVM实现原理 - 掘金_files/comment.4d5744f.svg" class="icon"><span data-v-ccfa68c6="" class="count">171</span></a></li><li data-v-ccfa68c6="" st:name="shareBtn" title="分享" class="item share clickable hover"><img data-v-ccfa68c6="" src="./Vue的MVVM实现原理 - 掘金_files/share.1d55e69.svg" class="icon"><div data-v-ccfa68c6="" class="share-panel"><div data-v-ccfa68c6="" st:name="shareItem" st:state="weibo" class="share-item weibo"><img data-v-ccfa68c6="" src="./Vue的MVVM实现原理 - 掘金_files/weibo.8e2f5d6.svg" class="icon">微博</div><div data-v-ccfa68c6="" st:name="shareItem" st:state="wechat" class="share-item wechat"><img data-v-ccfa68c6="" src="./Vue的MVVM实现原理 - 掘金_files/wechat.844402c.svg" class="icon">微信扫一扫<div data-v-ccfa68c6="" class="qr-code-box"><img data-v-ccfa68c6="" src="https://juejin.im/post/5edefb32518825431373704c" class="qr-code"></div></div></div></li><li data-v-ccfa68c6="" title="收藏" st:name="collectBtn" class="item collect clickable hover"><img data-v-ccfa68c6="" src="./Vue的MVVM实现原理 - 掘金_files/collect.02e2979.svg" class="icon"><!----></li><!----></ul></div></div><!----></div></a></div></div></li><!----><li data-v-687302b1="" data-growing-container="true" data-growing-title="entryList" class="item"><div data-v-749496f0="" data-v-687302b1="" class="entry-box"><div data-v-ccfa68c6="" data-v-749496f0="" st:block="entry" st:state="5ef85c636fb9a07ea10bbcdf|4" class="entry"><a data-v-ccfa68c6="" href="https://juejin.im/post/5ef8050f5188252e8272bd01" target="_blank" rel="" st:name="link" class="entry-link"><div data-v-ccfa68c6="" class="content-box"><div data-v-ccfa68c6="" class="info-box"><div data-v-ccfa68c6="" class="info-row meta-row"><ul data-v-ccfa68c6="" class="meta-list"><!----><!----><li data-v-ccfa68c6="" class="item post">专栏</li><li data-v-ccfa68c6="" class="item username clickable"><div data-v-1d890915="" data-v-ccfa68c6="" st:block="userPopover" st:state="5d4c28015188253b1e3de80d" class="user-popover-box"><!----><a data-v-ccfa68c6="" href="https://juejin.im/user/5d4c28015188253b1e3de80d" target="_blank" rel="" st:name="user" st:state="5d4c28015188253b1e3de80d" data-v-1d890915="">辉夜真是太可爱啦</a></div></li><li data-v-ccfa68c6="" class="item">1天前</li><li data-v-ccfa68c6="" class="item tag"><a data-v-ccfa68c6="" href="https://juejin.im/tag/Vue.js" target="_blank" rel="" st:name="tag" st:state="555e9a98e4b00c57d9955f68" class="tag">Vue.js</a></li><!----></ul></div><div data-v-ccfa68c6="" class="info-row title-row"><!----><!----><a data-v-ccfa68c6="" href="https://juejin.im/post/5ef8050f5188252e8272bd01" target="_blank" rel="" st:name="title" class="title">这些vue技巧，你值得拥有</a></div><div data-v-ccfa68c6="" class="info-row action-row"><ul data-v-ccfa68c6="" class="action-list"><li data-v-ccfa68c6="" st:name="likeBtn" class="item like clickable"><a data-v-ccfa68c6="" class="title-box"><img data-v-ccfa68c6="" src="./Vue的MVVM实现原理 - 掘金_files/zan.e9d7698.svg" class="icon"><span data-v-ccfa68c6="" class="count">18</span></a></li><li data-v-ccfa68c6="" st:name="commentBtn" class="item comment clickable"><a data-v-ccfa68c6="" href="https://juejin.im/post/5ef8050f5188252e8272bd01#comment" target="_blank" rel="" class="title-box"><img data-v-ccfa68c6="" src="./Vue的MVVM实现原理 - 掘金_files/comment.4d5744f.svg" class="icon"><span data-v-ccfa68c6="" class="count">9</span></a></li><li data-v-ccfa68c6="" st:name="shareBtn" title="分享" class="item share clickable hover"><img data-v-ccfa68c6="" src="./Vue的MVVM实现原理 - 掘金_files/share.1d55e69.svg" class="icon"><div data-v-ccfa68c6="" class="share-panel"><div data-v-ccfa68c6="" st:name="shareItem" st:state="weibo" class="share-item weibo"><img data-v-ccfa68c6="" src="./Vue的MVVM实现原理 - 掘金_files/weibo.8e2f5d6.svg" class="icon">微博</div><div data-v-ccfa68c6="" st:name="shareItem" st:state="wechat" class="share-item wechat"><img data-v-ccfa68c6="" src="./Vue的MVVM实现原理 - 掘金_files/wechat.844402c.svg" class="icon">微信扫一扫<div data-v-ccfa68c6="" class="qr-code-box"><img data-v-ccfa68c6="" src="https://juejin.im/post/5edefb32518825431373704c" class="qr-code"></div></div></div></li><li data-v-ccfa68c6="" title="收藏" st:name="collectBtn" class="item collect clickable hover"><img data-v-ccfa68c6="" src="./Vue的MVVM实现原理 - 掘金_files/collect.02e2979.svg" class="icon"><!----></li><!----></ul></div></div><!----></div></a></div></div></li><li data-v-687302b1="" data-growing-container="true" data-growing-title="entryList" class="item"><div data-v-749496f0="" data-v-687302b1="" class="entry-box"><div data-v-ccfa68c6="" data-v-749496f0="" st:block="entry" st:state="5ee6afd151882542fc6265e7|5" class="entry"><a data-v-ccfa68c6="" href="https://juejin.im/post/5eddbaee5188254344768fdc" target="_blank" rel="" st:name="link" class="entry-link"><div data-v-ccfa68c6="" class="content-box"><div data-v-ccfa68c6="" class="info-box"><div data-v-ccfa68c6="" class="info-row meta-row"><ul data-v-ccfa68c6="" class="meta-list"><!----><!----><li data-v-ccfa68c6="" class="item post">专栏</li><li data-v-ccfa68c6="" class="item username clickable"><div data-v-1d890915="" data-v-ccfa68c6="" st:block="userPopover" st:state="57e60c005bbb50005d51d852" class="user-popover-box"><!----><a data-v-ccfa68c6="" href="https://juejin.im/user/57e60c005bbb50005d51d852" target="_blank" rel="" st:name="user" st:state="57e60c005bbb50005d51d852" data-v-1d890915="">前端进击者</a></div></li><li data-v-ccfa68c6="" class="item">14天前</li><li data-v-ccfa68c6="" class="item tag"><a data-v-ccfa68c6="" href="https://juejin.im/tag/Vue.js" target="_blank" rel="" st:name="tag" st:state="555e9a98e4b00c57d9955f68" class="tag">Vue.js</a></li><!----></ul></div><div data-v-ccfa68c6="" class="info-row title-row"><!----><!----><a data-v-ccfa68c6="" href="https://juejin.im/post/5eddbaee5188254344768fdc" target="_blank" rel="" st:name="title" class="title">绝对干货~！学会这些Vue小技巧，可以早点下班和女神约会了</a></div><div data-v-ccfa68c6="" class="info-row action-row"><ul data-v-ccfa68c6="" class="action-list"><li data-v-ccfa68c6="" st:name="likeBtn" class="item like clickable"><a data-v-ccfa68c6="" class="title-box"><img data-v-ccfa68c6="" src="./Vue的MVVM实现原理 - 掘金_files/zan.e9d7698.svg" class="icon"><span data-v-ccfa68c6="" class="count">1008</span></a></li><li data-v-ccfa68c6="" st:name="commentBtn" class="item comment clickable"><a data-v-ccfa68c6="" href="https://juejin.im/post/5eddbaee5188254344768fdc#comment" target="_blank" rel="" class="title-box"><img data-v-ccfa68c6="" src="./Vue的MVVM实现原理 - 掘金_files/comment.4d5744f.svg" class="icon"><span data-v-ccfa68c6="" class="count">128</span></a></li><li data-v-ccfa68c6="" st:name="shareBtn" title="分享" class="item share clickable hover"><img data-v-ccfa68c6="" src="./Vue的MVVM实现原理 - 掘金_files/share.1d55e69.svg" class="icon"><div data-v-ccfa68c6="" class="share-panel"><div data-v-ccfa68c6="" st:name="shareItem" st:state="weibo" class="share-item weibo"><img data-v-ccfa68c6="" src="./Vue的MVVM实现原理 - 掘金_files/weibo.8e2f5d6.svg" class="icon">微博</div><div data-v-ccfa68c6="" st:name="shareItem" st:state="wechat" class="share-item wechat"><img data-v-ccfa68c6="" src="./Vue的MVVM实现原理 - 掘金_files/wechat.844402c.svg" class="icon">微信扫一扫<div data-v-ccfa68c6="" class="qr-code-box"><img data-v-ccfa68c6="" src="https://juejin.im/post/5edefb32518825431373704c" class="qr-code"></div></div></div></li><li data-v-ccfa68c6="" title="收藏" st:name="collectBtn" class="item collect clickable hover"><img data-v-ccfa68c6="" src="./Vue的MVVM实现原理 - 掘金_files/collect.02e2979.svg" class="icon"><!----></li><!----></ul></div></div><!----></div></a></div></div></li><!----><!----><li data-v-687302b1="" data-growing-container="true" data-growing-title="entryList" class="item"><div data-v-749496f0="" data-v-687302b1="" class="entry-box"><div data-v-ccfa68c6="" data-v-749496f0="" st:block="entry" st:state="5ef7fb07e51d45346b1ee9b0|4" class="entry"><a data-v-ccfa68c6="" href="https://juejin.im/post/5ef7faee6fb9a07e644ed9e7" target="_blank" rel="" st:name="link" class="entry-link"><div data-v-ccfa68c6="" class="content-box"><div data-v-ccfa68c6="" class="info-box"><div data-v-ccfa68c6="" class="info-row meta-row"><ul data-v-ccfa68c6="" class="meta-list"><!----><!----><li data-v-ccfa68c6="" class="item post">专栏</li><li data-v-ccfa68c6="" class="item username clickable"><div data-v-1d890915="" data-v-ccfa68c6="" st:block="userPopover" st:state="57c5743979bc440063f3351b" class="user-popover-box"><!----><a data-v-ccfa68c6="" href="https://juejin.im/user/57c5743979bc440063f3351b" target="_blank" rel="" st:name="user" st:state="57c5743979bc440063f3351b" data-v-1d890915="">狼族小狈</a></div></li><li data-v-ccfa68c6="" class="item">1天前</li><li data-v-ccfa68c6="" class="item tag"><a data-v-ccfa68c6="" href="https://juejin.im/tag/Vue.js" target="_blank" rel="" st:name="tag" st:state="555e9a98e4b00c57d9955f68" class="tag">Vue.js</a></li><!----></ul></div><div data-v-ccfa68c6="" class="info-row title-row"><!----><!----><a data-v-ccfa68c6="" href="https://juejin.im/post/5ef7faee6fb9a07e644ed9e7" target="_blank" rel="" st:name="title" class="title">带你了解基于 Vue 的微服务解决方案 Genesis</a></div><div data-v-ccfa68c6="" class="info-row action-row"><ul data-v-ccfa68c6="" class="action-list"><li data-v-ccfa68c6="" st:name="likeBtn" class="item like clickable"><a data-v-ccfa68c6="" class="title-box"><img data-v-ccfa68c6="" src="./Vue的MVVM实现原理 - 掘金_files/zan.e9d7698.svg" class="icon"><span data-v-ccfa68c6="" class="count">14</span></a></li><li data-v-ccfa68c6="" st:name="commentBtn" class="item comment clickable"><a data-v-ccfa68c6="" href="https://juejin.im/post/5ef7faee6fb9a07e644ed9e7#comment" target="_blank" rel="" class="title-box"><img data-v-ccfa68c6="" src="./Vue的MVVM实现原理 - 掘金_files/comment.4d5744f.svg" class="icon"><span data-v-ccfa68c6="" class="count">2</span></a></li><li data-v-ccfa68c6="" st:name="shareBtn" title="分享" class="item share clickable hover"><img data-v-ccfa68c6="" src="./Vue的MVVM实现原理 - 掘金_files/share.1d55e69.svg" class="icon"><div data-v-ccfa68c6="" class="share-panel"><div data-v-ccfa68c6="" st:name="shareItem" st:state="weibo" class="share-item weibo"><img data-v-ccfa68c6="" src="./Vue的MVVM实现原理 - 掘金_files/weibo.8e2f5d6.svg" class="icon">微博</div><div data-v-ccfa68c6="" st:name="shareItem" st:state="wechat" class="share-item wechat"><img data-v-ccfa68c6="" src="./Vue的MVVM实现原理 - 掘金_files/wechat.844402c.svg" class="icon">微信扫一扫<div data-v-ccfa68c6="" class="qr-code-box"><img data-v-ccfa68c6="" src="https://juejin.im/post/5edefb32518825431373704c" class="qr-code"></div></div></div></li><li data-v-ccfa68c6="" title="收藏" st:name="collectBtn" class="item collect clickable hover"><img data-v-ccfa68c6="" src="./Vue的MVVM实现原理 - 掘金_files/collect.02e2979.svg" class="icon"><!----></li><!----></ul></div></div><!----></div></a></div></div></li><li data-v-687302b1="" data-growing-container="true" data-growing-title="entryList" class="item"><div data-v-749496f0="" data-v-687302b1="" class="entry-box"><div data-v-ccfa68c6="" data-v-749496f0="" st:block="entry" st:state="5ef6f91b5188252e45671c41|5" class="entry"><a data-v-ccfa68c6="" href="https://juejin.im/post/5ef6f6d4f265da22cc284c35" target="_blank" rel="" st:name="link" class="entry-link"><div data-v-ccfa68c6="" class="content-box"><div data-v-ccfa68c6="" class="info-box"><div data-v-ccfa68c6="" class="info-row meta-row"><ul data-v-ccfa68c6="" class="meta-list"><!----><!----><li data-v-ccfa68c6="" class="item post">专栏</li><li data-v-ccfa68c6="" class="item username clickable"><div data-v-1d890915="" data-v-ccfa68c6="" st:block="userPopover" st:state="5de104206fb9a071ab56f655" class="user-popover-box"><!----><a data-v-ccfa68c6="" href="https://juejin.im/user/5de104206fb9a071ab56f655" target="_blank" rel="" st:name="user" st:state="5de104206fb9a071ab56f655" data-v-1d890915="">拾壹月的肖邦</a></div></li><li data-v-ccfa68c6="" class="item">2天前</li><li data-v-ccfa68c6="" class="item tag"><a data-v-ccfa68c6="" href="https://juejin.im/tag/Vue.js" target="_blank" rel="" st:name="tag" st:state="555e9a98e4b00c57d9955f68" class="tag">Vue.js</a></li><!----></ul></div><div data-v-ccfa68c6="" class="info-row title-row"><!----><!----><a data-v-ccfa68c6="" href="https://juejin.im/post/5ef6f6d4f265da22cc284c35" target="_blank" rel="" st:name="title" class="title">为什么 Vue 更符合这个时代的大势所趋？</a></div><div data-v-ccfa68c6="" class="info-row action-row"><ul data-v-ccfa68c6="" class="action-list"><li data-v-ccfa68c6="" st:name="likeBtn" class="item like clickable"><a data-v-ccfa68c6="" class="title-box"><img data-v-ccfa68c6="" src="./Vue的MVVM实现原理 - 掘金_files/zan.e9d7698.svg" class="icon"><span data-v-ccfa68c6="" class="count">14</span></a></li><li data-v-ccfa68c6="" st:name="commentBtn" class="item comment clickable"><a data-v-ccfa68c6="" href="https://juejin.im/post/5ef6f6d4f265da22cc284c35#comment" target="_blank" rel="" class="title-box"><img data-v-ccfa68c6="" src="./Vue的MVVM实现原理 - 掘金_files/comment.4d5744f.svg" class="icon"><span data-v-ccfa68c6="" class="count">9</span></a></li><li data-v-ccfa68c6="" st:name="shareBtn" title="分享" class="item share clickable hover"><img data-v-ccfa68c6="" src="./Vue的MVVM实现原理 - 掘金_files/share.1d55e69.svg" class="icon"><div data-v-ccfa68c6="" class="share-panel"><div data-v-ccfa68c6="" st:name="shareItem" st:state="weibo" class="share-item weibo"><img data-v-ccfa68c6="" src="./Vue的MVVM实现原理 - 掘金_files/weibo.8e2f5d6.svg" class="icon">微博</div><div data-v-ccfa68c6="" st:name="shareItem" st:state="wechat" class="share-item wechat"><img data-v-ccfa68c6="" src="./Vue的MVVM实现原理 - 掘金_files/wechat.844402c.svg" class="icon">微信扫一扫<div data-v-ccfa68c6="" class="qr-code-box"><img data-v-ccfa68c6="" src="https://juejin.im/post/5edefb32518825431373704c" class="qr-code"></div></div></div></li><li data-v-ccfa68c6="" title="收藏" st:name="collectBtn" class="item collect clickable hover"><img data-v-ccfa68c6="" src="./Vue的MVVM实现原理 - 掘金_files/collect.02e2979.svg" class="icon"><!----></li><!----></ul></div></div><!----></div></a></div></div></li><li data-v-687302b1="" data-growing-container="true" data-growing-title="entryList" class="item"><div data-v-749496f0="" data-v-687302b1="" class="entry-box"><div data-v-ccfa68c6="" data-v-749496f0="" st:block="entry" st:state="5ef8b983e51d4534c243862a|6" class="entry"><a data-v-ccfa68c6="" href="https://juejin.im/post/5ef704625188252e884e600e" target="_blank" rel="" st:name="link" class="entry-link"><div data-v-ccfa68c6="" class="content-box"><div data-v-ccfa68c6="" class="info-box"><div data-v-ccfa68c6="" class="info-row meta-row"><ul data-v-ccfa68c6="" class="meta-list"><!----><!----><li data-v-ccfa68c6="" class="item post">专栏</li><li data-v-ccfa68c6="" class="item username clickable"><div data-v-1d890915="" data-v-ccfa68c6="" st:block="userPopover" st:state="5dbfb47df265da4d270b448e" class="user-popover-box"><!----><a data-v-ccfa68c6="" href="https://juejin.im/user/5dbfb47df265da4d270b448e" target="_blank" rel="" st:name="user" st:state="5dbfb47df265da4d270b448e" data-v-1d890915="">yl爱学习</a></div></li><li data-v-ccfa68c6="" class="item">20小时前</li><li data-v-ccfa68c6="" class="item tag"><a data-v-ccfa68c6="" href="https://juejin.im/tag/Vue.js" target="_blank" rel="" st:name="tag" st:state="555e9a98e4b00c57d9955f68" class="tag">Vue.js</a></li><!----></ul></div><div data-v-ccfa68c6="" class="info-row title-row"><!----><!----><a data-v-ccfa68c6="" href="https://juejin.im/post/5ef704625188252e884e600e" target="_blank" rel="" st:name="title" class="title">基于ElementUI封装一个表格组件 tableList</a></div><div data-v-ccfa68c6="" class="info-row action-row"><ul data-v-ccfa68c6="" class="action-list"><li data-v-ccfa68c6="" st:name="likeBtn" class="item like clickable"><a data-v-ccfa68c6="" class="title-box"><img data-v-ccfa68c6="" src="./Vue的MVVM实现原理 - 掘金_files/zan.e9d7698.svg" class="icon"><span data-v-ccfa68c6="" class="count">1</span></a></li><li data-v-ccfa68c6="" st:name="commentBtn" class="item comment clickable"><a data-v-ccfa68c6="" href="https://juejin.im/post/5ef704625188252e884e600e#comment" target="_blank" rel="" class="title-box"><img data-v-ccfa68c6="" src="./Vue的MVVM实现原理 - 掘金_files/comment.4d5744f.svg" class="icon"><span data-v-ccfa68c6="" class="count">5</span></a></li><li data-v-ccfa68c6="" st:name="shareBtn" title="分享" class="item share clickable hover"><img data-v-ccfa68c6="" src="./Vue的MVVM实现原理 - 掘金_files/share.1d55e69.svg" class="icon"><div data-v-ccfa68c6="" class="share-panel"><div data-v-ccfa68c6="" st:name="shareItem" st:state="weibo" class="share-item weibo"><img data-v-ccfa68c6="" src="./Vue的MVVM实现原理 - 掘金_files/weibo.8e2f5d6.svg" class="icon">微博</div><div data-v-ccfa68c6="" st:name="shareItem" st:state="wechat" class="share-item wechat"><img data-v-ccfa68c6="" src="./Vue的MVVM实现原理 - 掘金_files/wechat.844402c.svg" class="icon">微信扫一扫<div data-v-ccfa68c6="" class="qr-code-box"><img data-v-ccfa68c6="" src="https://juejin.im/post/5edefb32518825431373704c" class="qr-code"></div></div></div></li><li data-v-ccfa68c6="" title="收藏" st:name="collectBtn" class="item collect clickable hover"><img data-v-ccfa68c6="" src="./Vue的MVVM实现原理 - 掘金_files/collect.02e2979.svg" class="icon"><!----></li><!----></ul></div></div><!----></div></a></div></div></li><li data-v-687302b1="" data-growing-container="true" data-growing-title="entryList" class="item"><div data-v-749496f0="" data-v-687302b1="" class="entry-box"><div data-v-ccfa68c6="" data-v-749496f0="" st:block="entry" st:state="5ef752d35188252e6c60cfa5|7" class="entry"><a data-v-ccfa68c6="" href="https://juejin.im/post/5ef368ec5188252e7d7fc303" target="_blank" rel="" st:name="link" class="entry-link"><div data-v-ccfa68c6="" class="content-box"><div data-v-ccfa68c6="" class="info-box"><div data-v-ccfa68c6="" class="info-row meta-row"><ul data-v-ccfa68c6="" class="meta-list"><!----><!----><li data-v-ccfa68c6="" class="item post">专栏</li><li data-v-ccfa68c6="" class="item username clickable"><div data-v-1d890915="" data-v-ccfa68c6="" st:block="userPopover" st:state="5c417f7ee51d45524c7cea18" class="user-popover-box"><!----><a data-v-ccfa68c6="" href="https://juejin.im/user/5c417f7ee51d45524c7cea18" target="_blank" rel="" st:name="user" st:state="5c417f7ee51d45524c7cea18" data-v-1d890915="">heiyehk</a></div></li><li data-v-ccfa68c6="" class="item">1天前</li><li data-v-ccfa68c6="" class="item tag"><a data-v-ccfa68c6="" href="https://juejin.im/tag/Vue.js" target="_blank" rel="" st:name="tag" st:state="555e9a98e4b00c57d9955f68" class="tag">Vue.js</a></li><!----></ul></div><div data-v-ccfa68c6="" class="info-row title-row"><!----><!----><a data-v-ccfa68c6="" href="https://juejin.im/post/5ef368ec5188252e7d7fc303" target="_blank" rel="" st:name="title" class="title">【进击的Vue(四)】webpack打包优化</a></div><div data-v-ccfa68c6="" class="info-row action-row"><ul data-v-ccfa68c6="" class="action-list"><li data-v-ccfa68c6="" st:name="likeBtn" class="item like clickable"><a data-v-ccfa68c6="" class="title-box"><img data-v-ccfa68c6="" src="./Vue的MVVM实现原理 - 掘金_files/zan.e9d7698.svg" class="icon"><span data-v-ccfa68c6="" class="count">11</span></a></li><li data-v-ccfa68c6="" st:name="commentBtn" class="item comment clickable"><a data-v-ccfa68c6="" href="https://juejin.im/post/5ef368ec5188252e7d7fc303#comment" target="_blank" rel="" class="title-box"><img data-v-ccfa68c6="" src="./Vue的MVVM实现原理 - 掘金_files/comment.4d5744f.svg" class="icon"><span data-v-ccfa68c6="" class="count">14</span></a></li><li data-v-ccfa68c6="" st:name="shareBtn" title="分享" class="item share clickable hover"><img data-v-ccfa68c6="" src="./Vue的MVVM实现原理 - 掘金_files/share.1d55e69.svg" class="icon"><div data-v-ccfa68c6="" class="share-panel"><div data-v-ccfa68c6="" st:name="shareItem" st:state="weibo" class="share-item weibo"><img data-v-ccfa68c6="" src="./Vue的MVVM实现原理 - 掘金_files/weibo.8e2f5d6.svg" class="icon">微博</div><div data-v-ccfa68c6="" st:name="shareItem" st:state="wechat" class="share-item wechat"><img data-v-ccfa68c6="" src="./Vue的MVVM实现原理 - 掘金_files/wechat.844402c.svg" class="icon">微信扫一扫<div data-v-ccfa68c6="" class="qr-code-box"><img data-v-ccfa68c6="" src="https://juejin.im/post/5edefb32518825431373704c" class="qr-code"></div></div></div></li><li data-v-ccfa68c6="" title="收藏" st:name="collectBtn" class="item collect clickable hover"><img data-v-ccfa68c6="" src="./Vue的MVVM实现原理 - 掘金_files/collect.02e2979.svg" class="icon"><!----></li><!----></ul></div></div><!----></div></a></div></div></li><li data-v-687302b1="" data-growing-container="true" data-growing-title="entryList" class="item"><div data-v-749496f0="" data-v-687302b1="" class="entry-box"><div data-v-ccfa68c6="" data-v-749496f0="" st:block="entry" st:state="5ef80d6af265da22cc284d5f|8" class="entry"><a data-v-ccfa68c6="" href="https://juejin.im/post/5ef6c526e51d4534a40d8dc0" target="_blank" rel="" st:name="link" class="entry-link"><div data-v-ccfa68c6="" class="content-box"><div data-v-ccfa68c6="" class="info-box"><div data-v-ccfa68c6="" class="info-row meta-row"><ul data-v-ccfa68c6="" class="meta-list"><!----><!----><li data-v-ccfa68c6="" class="item post">专栏</li><li data-v-ccfa68c6="" class="item username clickable"><div data-v-1d890915="" data-v-ccfa68c6="" st:block="userPopover" st:state="57cb04638ac24700644bab85" class="user-popover-box"><!----><a data-v-ccfa68c6="" href="https://juejin.im/user/57cb04638ac24700644bab85" target="_blank" rel="" st:name="user" st:state="57cb04638ac24700644bab85" data-v-1d890915="">江米小枣tonylua</a></div></li><li data-v-ccfa68c6="" class="item">1天前</li><li data-v-ccfa68c6="" class="item tag"><a data-v-ccfa68c6="" href="https://juejin.im/tag/Vue.js" target="_blank" rel="" st:name="tag" st:state="555e9a98e4b00c57d9955f68" class="tag">Vue.js</a></li><!----></ul></div><div data-v-ccfa68c6="" class="info-row title-row"><!----><!----><a data-v-ccfa68c6="" href="https://juejin.im/post/5ef6c526e51d4534a40d8dc0" target="_blank" rel="" st:name="title" class="title">[译] 用 Web Worker 改善 Vue 组件性能</a></div><div data-v-ccfa68c6="" class="info-row action-row"><ul data-v-ccfa68c6="" class="action-list"><li data-v-ccfa68c6="" st:name="likeBtn" class="item like clickable"><a data-v-ccfa68c6="" class="title-box"><img data-v-ccfa68c6="" src="./Vue的MVVM实现原理 - 掘金_files/zan.e9d7698.svg" class="icon"><span data-v-ccfa68c6="" class="count">6</span></a></li><li data-v-ccfa68c6="" st:name="commentBtn" class="item comment clickable"><a data-v-ccfa68c6="" href="https://juejin.im/post/5ef6c526e51d4534a40d8dc0#comment" target="_blank" rel="" class="title-box"><img data-v-ccfa68c6="" src="./Vue的MVVM实现原理 - 掘金_files/comment.4d5744f.svg" class="icon"><span data-v-ccfa68c6="" class="count">3</span></a></li><li data-v-ccfa68c6="" st:name="shareBtn" title="分享" class="item share clickable hover"><img data-v-ccfa68c6="" src="./Vue的MVVM实现原理 - 掘金_files/share.1d55e69.svg" class="icon"><div data-v-ccfa68c6="" class="share-panel"><div data-v-ccfa68c6="" st:name="shareItem" st:state="weibo" class="share-item weibo"><img data-v-ccfa68c6="" src="./Vue的MVVM实现原理 - 掘金_files/weibo.8e2f5d6.svg" class="icon">微博</div><div data-v-ccfa68c6="" st:name="shareItem" st:state="wechat" class="share-item wechat"><img data-v-ccfa68c6="" src="./Vue的MVVM实现原理 - 掘金_files/wechat.844402c.svg" class="icon">微信扫一扫<div data-v-ccfa68c6="" class="qr-code-box"><img data-v-ccfa68c6="" src="https://juejin.im/post/5edefb32518825431373704c" class="qr-code"></div></div></div></li><li data-v-ccfa68c6="" title="收藏" st:name="collectBtn" class="item collect clickable hover"><img data-v-ccfa68c6="" src="./Vue的MVVM实现原理 - 掘金_files/collect.02e2979.svg" class="icon"><!----></li><!----></ul></div></div><div data-v-e232e062="" data-v-02a6947c="" data-v-ccfa68c6="" data-src="https://user-gold-cdn.xitu.io/2020/6/28/172f9088baa70e30?imageView2/1/w/120/h/120/q/85/format/webp/interlace/1" class="lazy thumb thumb" style="background-image: none; background-size: cover;"></div></div></a></div></div></li><li data-v-687302b1="" class="item"><!----></li><!----></ul></div><div data-v-bd87ff56="" data-v-0b1a4f9a="" st:block="sidebar" class="sidebar sidebar" data-v-575c8a08=""><div data-v-8994b7e2="" data-v-2c6cf58a="" data-v-bd87ff56="" class="sidebar-block author-block shadow"><div data-v-8994b7e2="" class="block-title">关于作者</div><div data-v-8994b7e2="" class="block-body"><a data-v-2c6cf58a="" href="https://juejin.im/user/5954c8375188250d9a3eb3bd" target="_blank" rel="" class="user-item item" data-v-8994b7e2=""><div data-v-e232e062="" data-v-4bc4293a="" data-v-2c6cf58a="" data-src="https://user-gold-cdn.xitu.io/2020/4/17/17186a4c9f7ff052?imageView2/1/w/100/h/100/q/85/format/webp/interlace/1" class="lazy avatar avatar" style="background-image: none;"></div><div data-v-2c6cf58a="" class="info-box"><a data-v-b8de4708="" data-v-2c6cf58a="" href="https://juejin.im/user/5954c8375188250d9a3eb3bd" target="_blank" rel="" class="username">笑马哥<a data-v-b9e98e56="" data-v-b8de4708="" href="https://juejin.im/book/5c90640c5188252d7941f5bb/section/5c9065385188252da6320022" target="_blank" rel="" class="rank"><img data-v-b9e98e56="" src="./Vue的MVVM实现原理 - 掘金_files/lv-1.636691c.svg" alt="lv-1"></a></a><div data-v-2c6cf58a="" title="高级前端开发" class="position">高级前端开发</div></div></a><div data-v-2c6cf58a="" data-v-8994b7e2="" class="stat-item item"><svg data-v-2c6cf58a="" data-v-8994b7e2="" xmlns="http://www.w3.org/2000/svg" width="25" height="26" viewBox="0 0 25 26" class="zan"><g data-v-2c6cf58a="" data-v-8994b7e2="" fill="none" fill-rule="evenodd" transform="translate(0 .57)"><ellipse data-v-2c6cf58a="" data-v-8994b7e2="" cx="12.5" cy="12.57" fill="#E1EFFF" rx="12.5" ry="12.57"></ellipse> <path data-v-2c6cf58a="" data-v-8994b7e2="" fill="#7BB9FF" d="M8.596 11.238V19H7.033C6.463 19 6 18.465 6 17.807v-5.282c0-.685.483-1.287 1.033-1.287h1.563zm4.275-4.156A1.284 1.284 0 0 1 14.156 6c.885.016 1.412.722 1.595 1.07.334.638.343 1.687.114 2.361-.207.61-.687 1.412-.687 1.412h3.596c.38 0 .733.178.969.488.239.317.318.728.21 1.102l-1.628 5.645a1.245 1.245 0 0 1-1.192.922h-7.068v-7.889c1.624-.336 2.623-2.866 2.806-4.029z"></path></g></svg> <span data-v-2c6cf58a="" data-v-8994b7e2="" class="content">获得点赞<span data-v-2c6cf58a="" data-v-8994b7e2="" class="count">45</span></span></div><div data-v-2c6cf58a="" data-v-8994b7e2="" class="stat-item item"><svg data-v-2c6cf58a="" data-v-8994b7e2="" width="25" height="25" viewBox="0 0 25 25" class="icon stat-view-icon"><g data-v-2c6cf58a="" data-v-8994b7e2="" fill="none" fill-rule="evenodd"><circle data-v-2c6cf58a="" data-v-8994b7e2="" cx="12.5" cy="12.5" r="12.5" fill="#E1EFFF"></circle> <path data-v-2c6cf58a="" data-v-8994b7e2="" fill="#7BB9FF" d="M4 12.5S6.917 7 12.75 7s8.75 5.5 8.75 5.5-2.917 5.5-8.75 5.5S4 12.5 4 12.5zm8.75 2.292c1.208 0 2.188-1.026 2.188-2.292 0-1.266-.98-2.292-2.188-2.292-1.208 0-2.188 1.026-2.188 2.292 0 1.266.98 2.292 2.188 2.292z"></path></g></svg> <span data-v-2c6cf58a="" data-v-8994b7e2="" class="content">文章被阅读<span data-v-2c6cf58a="" data-v-8994b7e2="" class="count">2,149</span></span></div><!----></div></div><ul data-v-bd87ff56="" class="sidebar-bd-entry"><li data-v-bd87ff56=""><a data-v-edea3642="" data-v-bd87ff56="" href="https://job.bytedance.com/campus/?_tracking=lMiWdDq" target="_blank" class="sidebar-entry shadow" style="background-image: url(&quot;https://user-gold-cdn.xitu.io/1592210187852c3b4fcfab403f16fb7598425e58a689d.jpg&quot;);"></a></li><li data-v-bd87ff56=""><a data-v-edea3642="" data-v-bd87ff56="" href="https://2020.tlc.ivweb.io/" target="_blank" class="sidebar-entry shadow" style="background-image: url(&quot;https://user-gold-cdn.xitu.io/159098045372884128961ff2c559334a5136ec25e29fa.jpg&quot;);"></a></li><li data-v-bd87ff56=""><a data-v-edea3642="" data-v-bd87ff56="" href="https://www.huodongxing.com/go/tl12" target="_blank" class="sidebar-entry shadow" style="background-image: url(&quot;https://user-gold-cdn.xitu.io/15934112630650e9635f8fad26c31b5cef9b69e0d855d.jpg&quot;);"></a></li><li data-v-bd87ff56=""><a data-v-edea3642="" data-v-bd87ff56="" href="https://juejin.im/pin/5ef00b006fb9a05a216a1d4f" target="_blank" class="sidebar-entry shadow" style="background-image: url(&quot;https://user-gold-cdn.xitu.io/159278985677701c7324c973e81cd4a35a0dafdb071ea.jpg&quot;);"></a></li></ul><div data-v-b74a59f4="" data-v-1b0cded9="" data-v-bd87ff56="" class="index-book-collect" place="post" category="5562b415e4b00c57d9b94ac8"><div data-v-b74a59f4="" class="header"><div data-v-b74a59f4="" class="title">掘金小册</div><div data-v-b74a59f4="" class="controllers"><div data-v-b74a59f4="" class="arrow icon ion-chevron-left"></div><div data-v-b74a59f4="" class="arrow icon ion-chevron-right"></div></div></div><div data-v-b74a59f4="" class="slide-book transition--next"><div data-v-552fa113="" data-v-b74a59f4="" class="slide-book-list item"><a data-v-552fa113="" href="https://juejin.im/book/5db8f668f265da4d0d0dc4d2" class="item"><div data-v-552fa113="" class="poster"><div data-v-e232e062="" data-v-02a6947c="" data-v-552fa113="" data-src="https://user-gold-cdn.xitu.io/2020/6/26/172f0a69771328b9?imageView2/1/w/104/h/144/q/95/format/webp/interlace/1" class="lazy thumb poster-img" style="background-image: none; background-size: cover;"></div></div><div data-v-552fa113="" class="content-text"><div data-v-552fa113="" class="title">Mastering Gradle</div><div data-v-552fa113="" class="price"><div data-v-552fa113="" class="new">新人价 ￥14.95</div><div data-v-552fa113="" class="delete">￥29.9</div></div></div></a><a data-v-552fa113="" href="https://juejin.im/book/5a09997cf265da432002bf6a" class="item"><div data-v-552fa113="" class="poster"><div data-v-e232e062="" data-v-02a6947c="" data-v-552fa113="" data-src="https://user-gold-cdn.xitu.io/2017/12/13/1604f3080efffc24?imageView2/1/w/104/h/144/q/95/format/webp/interlace/1" class="lazy thumb poster-img" style="background-image: none; background-size: cover;"></div></div><div data-v-552fa113="" class="content-text"><div data-v-552fa113="" class="title">响应式编程 —— RxJava 高阶指南</div><div data-v-552fa113="" class="price"><div data-v-552fa113="" class="new">新人价 ￥4.95</div><div data-v-552fa113="" class="delete">￥9.9</div></div></div></a></div></div></div><!----><!----><div data-v-8994b7e2="" data-v-083ea79d="" data-v-bd87ff56="" class="sidebar-block related-entry-sidebar-block shadow" st:block="relatedEntrySidebarBlock"><div data-v-8994b7e2="" class="block-title">相关文章</div><div data-v-8994b7e2="" class="block-body"><div data-v-083ea79d="" data-v-8994b7e2="" class="entry-list"><a data-v-083ea79d="" href="https://juejin.im/post/5edf02baf265da771b2feef5" target="_blank" rel="" st:name="link" class="item" data-v-8994b7e2=""><div data-v-083ea79d="" class="entry-title">Vue的v-for为什么要加key</div><div data-v-083ea79d="" class="entry-meta-box"><div data-v-083ea79d="" class="entry-meta"><img data-v-083ea79d="" src="./Vue的MVVM实现原理 - 掘金_files/zan.e9d7698.svg" class="icon"><span data-v-083ea79d="" class="count">11</span></div><div data-v-083ea79d="" class="entry-meta"><img data-v-083ea79d="" src="./Vue的MVVM实现原理 - 掘金_files/comment.a7c8341.svg" class="icon"><span data-v-083ea79d="" class="count">1</span></div></div></a><a data-v-083ea79d="" href="https://juejin.im/post/5ee9708451882503a057a007" target="_blank" rel="" st:name="link" class="item" data-v-8994b7e2=""><div data-v-083ea79d="" class="entry-title">异步解决方案 async-await</div><div data-v-083ea79d="" class="entry-meta-box"><div data-v-083ea79d="" class="entry-meta"><img data-v-083ea79d="" src="./Vue的MVVM实现原理 - 掘金_files/zan.e9d7698.svg" class="icon"><span data-v-083ea79d="" class="count">5</span></div><div data-v-083ea79d="" class="entry-meta"><img data-v-083ea79d="" src="./Vue的MVVM实现原理 - 掘金_files/comment.a7c8341.svg" class="icon"><span data-v-083ea79d="" class="count">0</span></div></div></a><a data-v-083ea79d="" href="https://juejin.im/post/5ee96feaf265da76ca590527" target="_blank" rel="" st:name="link" class="item" data-v-8994b7e2=""><div data-v-083ea79d="" class="entry-title">异步解决方法Promise的用法</div><div data-v-083ea79d="" class="entry-meta-box"><div data-v-083ea79d="" class="entry-meta"><img data-v-083ea79d="" src="./Vue的MVVM实现原理 - 掘金_files/zan.e9d7698.svg" class="icon"><span data-v-083ea79d="" class="count">5</span></div><div data-v-083ea79d="" class="entry-meta"><img data-v-083ea79d="" src="./Vue的MVVM实现原理 - 掘金_files/comment.a7c8341.svg" class="icon"><span data-v-083ea79d="" class="count">0</span></div></div></a><a data-v-083ea79d="" href="https://juejin.im/post/5ee96ea6e51d45788d1cdaee" target="_blank" rel="" st:name="link" class="item" data-v-8994b7e2=""><div data-v-083ea79d="" class="entry-title">作用域、闭包、JS高阶函数理解</div><div data-v-083ea79d="" class="entry-meta-box"><div data-v-083ea79d="" class="entry-meta"><img data-v-083ea79d="" src="./Vue的MVVM实现原理 - 掘金_files/zan.e9d7698.svg" class="icon"><span data-v-083ea79d="" class="count">4</span></div><div data-v-083ea79d="" class="entry-meta"><img data-v-083ea79d="" src="./Vue的MVVM实现原理 - 掘金_files/comment.a7c8341.svg" class="icon"><span data-v-083ea79d="" class="count">0</span></div></div></a><a data-v-083ea79d="" href="https://juejin.im/post/5e99432bf265da47f318bda0" target="_blank" rel="" st:name="link" class="item" data-v-8994b7e2=""><div data-v-083ea79d="" class="entry-title">ES6常用API详讲</div><div data-v-083ea79d="" class="entry-meta-box"><div data-v-083ea79d="" class="entry-meta"><img data-v-083ea79d="" src="./Vue的MVVM实现原理 - 掘金_files/zan.e9d7698.svg" class="icon"><span data-v-083ea79d="" class="count">2</span></div><div data-v-083ea79d="" class="entry-meta"><img data-v-083ea79d="" src="./Vue的MVVM实现原理 - 掘金_files/comment.a7c8341.svg" class="icon"><span data-v-083ea79d="" class="count">0</span></div></div></a></div></div></div><div data-v-bd87ff56="" class="sticky-block-box"><div data-v-8994b7e2="" data-v-2757de2e="" data-v-bd87ff56="" class="sidebar-block catalog-block pure"><nav data-v-0265697d="" data-v-2757de2e="" class="article-catalog" data-v-8994b7e2="" style=""><div data-v-0265697d="" class="catalog-title">目录</div><div data-v-0265697d="" class="catalog-body"><ul data-v-0265697d="" class="catalog-list" style="margin-top: 0px;"><li data-v-0265697d="" class="item d1"><a href="https://juejin.im/post/5edefb32518825431373704c#heading-0" title="视频已录制，地址(www.bilibili.com/video/BV1qJ…)">视频已录制，地址(www.bilibili.com/video/BV1qJ…)</a><!----></li><li data-v-0265697d="" class="item d1 active"><a href="https://juejin.im/post/5edefb32518825431373704c#heading-1" title="几种实现双向绑定的做法">几种实现双向绑定的做法</a><!----></li><li data-v-0265697d="" class="item d1"><a href="https://juejin.im/post/5edefb32518825431373704c#heading-2" title="MVVM原理">MVVM原理</a><!----></li><li data-v-0265697d="" class="item d1"><a href="https://juejin.im/post/5edefb32518825431373704c#heading-3" title="实现指令解析器Compile">实现指令解析器Compile</a><ul class="sub-list"><li class="item d2"><a href="https://juejin.im/post/5edefb32518825431373704c#heading-4" title="初始化">初始化</a><!----></li><li class="item d2"><a href="https://juejin.im/post/5edefb32518825431373704c#heading-5" title="优化编译使用文档碎片">优化编译使用文档碎片</a><!----></li><li class="item d2"><a href="https://juejin.im/post/5edefb32518825431373704c#heading-6" title="编译模板">编译模板</a><!----></li><li class="item d2"><a href="https://juejin.im/post/5edefb32518825431373704c#heading-7" title="编译元素">编译元素</a><!----></li><li class="item d2"><a href="https://juejin.im/post/5edefb32518825431373704c#heading-8" title="编译文本">编译文本</a><!----></li><li class="item d2"><a href="https://juejin.im/post/5edefb32518825431373704c#heading-9" title="处理元素/处理文本/处理事件....">处理元素/处理文本/处理事件....</a><!----></li></ul></li><li data-v-0265697d="" class="item d1"><a href="https://juejin.im/post/5edefb32518825431373704c#heading-10" title="实现一个数据监听器Observer">实现一个数据监听器Observer</a><!----></li><li data-v-0265697d="" class="item d1"><a href="https://juejin.im/post/5edefb32518825431373704c#heading-11" title="实现一个Watcher">实现一个Watcher</a><!----></li><li data-v-0265697d="" class="item d1"><a href="https://juejin.im/post/5edefb32518825431373704c#heading-12" title="代理proxy">代理proxy</a><!----></li><li data-v-0265697d="" class="item d1"><a href="https://juejin.im/post/5edefb32518825431373704c#heading-13" title="面试题">面试题</a><!----></li></ul></div></nav></div></div></div><div data-v-0c700a3a="" data-v-0b1a4f9a="" class="article-suspended-panel article-suspended-panel" data-v-575c8a08=""><div data-v-0c700a3a="" badge="11" class="like-btn panel-btn like-adjust with-badge"></div><div data-v-0c700a3a="" badge="4" class="comment-btn panel-btn comment-adjust with-badge"></div><div data-v-0c700a3a="" class="collect-btn panel-btn"><!----></div><div data-v-0c700a3a="" class="share-title">分享</div><div data-v-0c700a3a="" class="weibo-btn share-btn panel-btn"></div><div data-v-0c700a3a="" class="qq-btn share-btn panel-btn"></div><div data-v-0c700a3a="" class="wechat-btn share-btn panel-btn"><img data-v-0c700a3a="" src="https://juejin.im/post/5edefb32518825431373704c" class="wechat-qr-code-img shadow" style="display: none;"></div></div><div data-v-fa31c83e="" data-v-0b1a4f9a="" class="image-viewer-box" data-v-575c8a08=""><!----></div><!----></div></main></div><!----></div>
+      
+      
+      
+      <script type="text/javascript" src="./Vue的MVVM实现原理 - 掘金_files/runtime.301e7eea7ec3246f8b8c.js.下载"></script><script type="text/javascript" src="./Vue的MVVM实现原理 - 掘金_files/0.a87cc5a01e86d5927346.js.下载"></script><script type="text/javascript" src="./Vue的MVVM实现原理 - 掘金_files/1.42309921c134e997dc82.js.下载"></script>
+    </body></html>
